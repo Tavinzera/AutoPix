@@ -1,313 +1,389 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meu Pix</title>
-  <style>
-    :root {
-      --pix: #00a884;
-      --pix-dark: #007f68;
-      --bg: #f3f7f6;
-      --card: #fff;
-      --text: #17211f;
-      --muted: #687572;
-      --border: #dfe8e5;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(145deg, #e9f8f3, var(--bg));
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .card {
-      width: 100%;
-      max-width: 430px;
-      background: var(--card);
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: 0 16px 50px rgba(0,0,0,.10);
-      text-align: center;
-    }
-    .logo {
-      width: 58px;
-      height: 58px;
-      margin: 0 auto 12px;
-      border-radius: 18px;
-      background: var(--pix);
-      display: grid;
-      place-items: center;
-      color: white;
-      font-size: 28px;
-      font-weight: 800;
-    }
-    h1 { margin: 0 0 5px; font-size: 25px; }
-    .subtitle { color: var(--muted); margin: 0 0 22px; }
-    .amount {
-      font-size: 31px;
-      font-weight: 800;
-      margin: 12px 0 4px;
-    }
-    .city { color: var(--muted); margin-bottom: 20px; }
-    #qrcode {
-      width: 250px;
-      height: 250px;
-      margin: 0 auto 18px;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #fff;
-    }
-    #qrcode img, #qrcode canvas { max-width: 100%; max-height: 100%; }
-    label {
-      display: block;
-      text-align: left;
-      font-size: 13px;
-      font-weight: 700;
-      margin: 12px 0 6px;
-    }
-    input {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 13px 14px;
-      font-size: 16px;
-      outline: none;
-    }
-    input:focus { border-color: var(--pix); }
-    .pix-box {
-      display: flex;
-      gap: 8px;
-    }
-    .pix-box input {
-      min-width: 0;
-      font-size: 12px;
-      background: #f7faf9;
-    }
-    button {
-      width: 100%;
-      border: 0;
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-top: 10px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: .15s;
-    }
-    button:hover { transform: translateY(-1px); }
-    .primary { background: var(--pix); color: white; }
-    .primary:hover { background: var(--pix-dark); }
-    .secondary { background: #edf4f2; color: var(--text); }
-    .whatsapp { background: #25D366; color: white; }
-    .hint {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.45;
-      margin-top: 16px;
-    }
-    .status {
-      min-height: 18px;
-      font-size: 13px;
-      color: var(--pix-dark);
-      margin-top: 8px;
-    }
-    .fixed-info {
-      background: #f7faf9;
-      border-radius: 12px;
-      padding: 11px;
-      font-size: 13px;
-      text-align: left;
-      margin-bottom: 14px;
-    }
-    .fixed-info b { display: block; margin-bottom: 3px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador Pix - Itumbiara</title>
+<style>
+:root{--pix:#00a884;--dark:#007f68;--bg:#eef6f3;--card:#fff;--text:#17211f;--muted:#687572;--border:#dbe7e3;--danger:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(145deg,#e8f7f2,var(--bg));font-family:Arial,sans-serif;color:var(--text);padding:24px}
+.container{max-width:900px;margin:auto}
+.card{background:var(--card);border-radius:22px;padding:25px;box-shadow:0 12px 40px #00000012;margin-bottom:20px}
+h1,h2{margin-top:0}.subtitle,.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+label{display:block;font-weight:bold;font-size:13px;margin:12px 0 6px}
+input,select{width:100%;padding:13px;border:1px solid var(--border);border-radius:11px;font-size:16px;background:white}
+button{border:0;border-radius:11px;padding:13px 16px;font-size:15px;font-weight:bold;cursor:pointer}
+.primary{background:var(--pix);color:white}.secondary{background:#edf4f2}.danger{background:#fff0ee;color:var(--danger)}
+button:hover{filter:brightness(.97)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.actions button{flex:1;min-width:150px}
+.saved{border:1px solid var(--border);border-radius:14px;padding:14px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.saved-info{min-width:0}.saved-info strong{display:block}.saved-info span{font-size:12px;color:var(--muted);word-break:break-all}
+.saved-actions{display:flex;gap:6px}.saved-actions button{padding:8px 10px;font-size:12px}
+.qr-area{text-align:center}
+#qrcode{width:250px;height:250px;padding:10px;margin:14px auto;border:1px solid var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center;background:#fff}
+#qrcode img,#qrcode canvas{max-width:100%;max-height:100%}
+.amount{font-size:30px;font-weight:800;text-align:center;margin:8px}
+.city{text-align:center;color:var(--muted)}
+.pix-box{display:flex;gap:8px}.pix-box input{font-size:12px;background:#f7faf9}
+.pix-box button{width:100px}
+.status{text-align:center;color:var(--dark);min-height:20px;margin-top:10px;font-size:13px}
+.whatsapp{background:#25D366;color:white}
+.info{background:#f5faf8;border-radius:12px;padding:12px;font-size:13px;margin-top:12px}
+.badge{display:inline-block;background:#e2f5ef;color:var(--dark);padding:5px 9px;border-radius:20px;font-size:12px;font-weight:bold}
+</style>
 </head>
 <body>
-  <main class="card">
-    <div class="logo">₿</div>
-    <h1>Pagamento via Pix</h1>
-    <p class="subtitle">Aponte a câmera ou copie o código</p>
+<div class="container">
 
-    <div class="fixed-info">
-      <b>Recebedor</b>
-      <span id="recipient">SEU NOME</span>
+<div class="card">
+  <h1>💚 Gerador de Pix</h1>
+  <p class="subtitle">Cadastre suas chaves e gere QR Code + Pix copia e cola.</p>
+  <span class="badge">Cidade fixa: Itumbiara - GO</span>
+
+  <h2 style="margin-top:25px">Cadastrar chave Pix</h2>
+  <p class="muted">O primeiro nome serve apenas para você identificar a chave. O segundo é o nome que aparecerá no Pix.</p>
+
+  <div class="grid">
+    <div>
+      <label for="idName">Nome para identificar a chave</label>
+      <input id="idName" placeholder="Ex.: Loja, João, Empresa">
     </div>
+    <div>
+      <label for="recipientName">Nome que aparecerá no Pix</label>
+      <input id="recipientName" maxlength="25" placeholder="Ex.: JOAO DA SILVA">
+    </div>
+  </div>
 
+  <label for="pixKey">Chave Pix</label>
+  <input id="pixKey" placeholder="CPF, CNPJ, telefone, e-mail ou chave aleatória">
+
+  <div class="actions">
+    <button class="primary" onclick="saveKey()">💾 Salvar chave</button>
+    <button class="secondary" onclick="clearForm()">Limpar</button>
+  </div>
+
+  <div class="info">
+    <b>🔒 Onde fica salvo?</b><br>
+    As chaves ficam no <b>localStorage</b> deste navegador/dispositivo. Elas não são enviadas para um servidor por esta página.
+    <br><br>
+    <button class="secondary" style="width:100%" onclick="testStorage()">🔎 Testar armazenamento</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>🔑 Minhas chaves</h2>
+  <div id="savedKeys"></div>
+</div>
+
+<div class="card">
+  <h2>💰 Gerar pagamento</h2>
+
+  <label for="keySelect">Escolha a chave Pix</label>
+  <select id="keySelect" onchange="selectKey()">
+    <option value="">Selecione uma chave...</option>
+  </select>
+
+  <label for="amount">Valor (opcional)</label>
+  <input id="amount" type="number" min="0.01" step="0.01" placeholder="Ex.: 50,00">
+
+  <button class="primary" style="width:100%;margin-top:14px" onclick="generatePix()">Gerar Pix</button>
+
+  <div class="qr-area">
     <div class="amount" id="amountDisplay">Valor livre</div>
-    <div class="city" id="cityDisplay">SUA CIDADE - UF</div>
+    <div id="recipientDisplay" class="muted"></div>
+    <div class="city">Itumbiara - GO</div>
 
-    <div id="qrcode"></div>
+    <div id="qrcode"><span class="muted">O QR Code aparecerá aqui</span></div>
 
-    <label for="amount">Valor (opcional)</label>
-    <input id="amount" type="number" min="0.01" step="0.01" placeholder="Ex.: 50,00">
-
-    <button class="primary" onclick="generatePix()">Gerar / atualizar Pix</button>
-
-    <label for="pixCode">Pix copia e cola</label>
-    <div class="pix-box">
-      <input id="pixCode" readonly>
-      <button class="secondary" style="width:110px;margin:0" onclick="copyPix()">Copiar</button>
+    <b>📋 Pix copia e cola</b>
+    <div class="pix-box" style="margin-top:8px">
+      <input id="pixCode" readonly placeholder="Gere o Pix para aparecer o código">
+      <button class="secondary" onclick="copyPix()">Copiar</button>
     </div>
 
     <div class="status" id="status"></div>
 
-    <button class="whatsapp" onclick="sendWhatsApp()">Enviar pelo WhatsApp</button>
+    <div class="actions">
+      <button class="whatsapp" onclick="sendWhatsApp()">📲 Enviar pelo WhatsApp</button>
+      <button class="secondary" onclick="sharePix()">↗ Compartilhar</button>
+    </div>
+  </div>
+</div>
 
-    <p class="hint">
-      O botão do WhatsApp abre uma mensagem pronta com o valor e o Pix copia e cola.
-      O pagamento é confirmado pelo seu banco, não por esta página.
-    </p>
-  </main>
+</div>
 
-  <!-- Biblioteca QR Code -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const STORAGE_KEY = "pix_itumbiara_chaves_v1";
+const CITY = "ITUMBIARA";
+const UF = "GO";
+const TXID = "***";
+let editingId = null;
 
-  <script>
-    /*
-      =========================
-      CONFIGURAÇÃO FIXA
-      =========================
-      Troque somente os valores abaixo.
-    */
-    const PIX_KEY = "SUA_CHAVE_PIX_AQUI";
-    const RECIPIENT_NAME = "SEU NOME";
-    const CITY = "SUA CIDADE";
-    const UF = "GO";
+function getKeys(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch(e) {
+    console.error("Erro ao ler localStorage:", e);
+    return [];
+  }
+}
 
-    // ID da transação. Para QR estático, use "***" ou um identificador curto.
-    const TXID = "***";
+function setKeys(keys){
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(keys));
+    // Confirma que realmente gravou.
+    const check = localStorage.getItem(STORAGE_KEY);
+    if (!check) throw new Error("O navegador não permitiu gravar os dados.");
+    return true;
+  } catch(e) {
+    console.error("Erro ao salvar localStorage:", e);
+    alert("Não foi possível salvar no navegador. Se você abriu o arquivo como file://, tente usar a versão hospedada em um site ou Chrome/Edge em uma página http://localhost.");
+    return false;
+  }
+}
 
-    document.getElementById("recipient").textContent = RECIPIENT_NAME;
-    document.getElementById("cityDisplay").textContent = CITY + " - " + UF;
+function normalize(text,max){
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .toUpperCase().replace(/[^A-Z0-9 $%*+\\-./:]/g,"").substring(0,max);
+}
+function field(id,value){ return id + String(value.length).padStart(2,"0") + value; }
 
-    function crc16(payload) {
-      let crc = 0xFFFF;
-      for (let i = 0; i < payload.length; i++) {
-        crc ^= payload.charCodeAt(i) << 8;
-        for (let j = 0; j < 8; j++) {
-          crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
-          crc &= 0xFFFF;
-        }
-      }
-      return crc.toString(16).toUpperCase().padStart(4, "0");
+function crc16(payload){
+  let crc=0xFFFF;
+  for(let i=0;i<payload.length;i++){
+    crc ^= payload.charCodeAt(i)<<8;
+    for(let j=0;j<8;j++){
+      crc=(crc&0x8000)?((crc<<1)^0x1021):(crc<<1);
+      crc &= 0xFFFF;
     }
+  }
+  return crc.toString(16).toUpperCase().padStart(4,"0");
+}
 
-    function field(id, value) {
-      return id + String(value.length).padStart(2, "0") + value;
+function buildPix(key,name,amount){
+  key=key.trim();
+  if(!key) throw new Error("Informe uma chave Pix.");
+  name=normalize(name,25);
+  if(!name) throw new Error("Informe o nome que aparecerá no Pix.");
+
+  const merchantAccount=field("26",field("00","BR.GOV.BCB.PIX")+field("01",key));
+  let payload=field("00","01")+merchantAccount+field("52","0000")+field("53","986");
+  if(amount && Number(amount)>0) payload+=field("54",Number(amount).toFixed(2));
+  payload+=field("58","BR")+field("59",name)+field("60",CITY);
+  payload+=field("62",field("05",TXID));
+  payload+="6304";
+  return payload+crc16(payload);
+}
+
+function saveKey(){
+  const idName = document.getElementById("idName").value.trim();
+  const recipientName = document.getElementById("recipientName").value.trim();
+  const pixKey = document.getElementById("pixKey").value.trim();
+
+  if (!idName) {
+    alert("Digite um nome para identificar esta chave.");
+    document.getElementById("idName").focus();
+    return;
+  }
+
+  if (!recipientName) {
+    alert("Digite o nome que aparecerá no Pix.");
+    document.getElementById("recipientName").focus();
+    return;
+  }
+
+  if (!pixKey) {
+    alert("Digite a chave Pix.");
+    document.getElementById("pixKey").focus();
+    return;
+  }
+
+  let keys = getKeys();
+
+  if (editingId) {
+    const index = keys.findIndex(k => k.id === editingId);
+    if (index !== -1) {
+      keys[index] = {
+        ...keys[index],
+        idName,
+        recipientName,
+        pixKey
+      };
     }
+  } else {
+    keys.push({
+      id: Date.now().toString(),
+      idName,
+      recipientName,
+      pixKey
+    });
+  }
 
-    function normalize(text, max) {
-      return text
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toUpperCase()
-        .replace(/[^A-Z0-9 $%*+\-./:]/g, "")
-        .substring(0, max);
+  if (!setKeys(keys)) return;
+
+  editingId = null;
+  clearForm();
+  function testStorage(){
+  try {
+    const testKey = "__pix_test__";
+    localStorage.setItem(testKey, "ok");
+    const result = localStorage.getItem(testKey);
+    localStorage.removeItem(testKey);
+
+    if (result === "ok") {
+      alert("✅ O armazenamento do navegador está funcionando. Suas chaves podem ser salvas.");
+    } else {
+      alert("⚠️ O navegador não confirmou o armazenamento.");
     }
+  } catch(e) {
+    alert("❌ Este modo de abertura do arquivo não permite localStorage. Abra a página por uma hospedagem/servidor web.");
+  }
+}
 
-    function buildPix(amount) {
-      const merchantName = normalize(RECIPIENT_NAME, 25);
-      const merchantCity = normalize(CITY, 15);
-      const key = PIX_KEY.trim();
+renderKeys();
+  populateSelect();
 
-      if (!key || key === "SUA_CHAVE_PIX_AQUI") {
-        throw new Error("Configure sua chave Pix no código.");
-      }
+  // Seleciona automaticamente a chave recém-cadastrada/alterada.
+  const saved = getKeys();
+  const last = saved[saved.length - 1];
+  if (last) {
+    document.getElementById("keySelect").value = last.id;
+    selectKey();
+  }
 
-      const gui = field("00", "BR.GOV.BCB.PIX");
-      const pixKey = field("01", key);
-      const merchantAccount = field("26", gui + pixKey);
+  setStatus("✅ Chave Pix salva com sucesso!");
+}
+function editKey(id){
+  const item=getKeys().find(k=>k.id===id);
+  if(!item)return;
+  document.getElementById("idName").value=item.idName;
+  document.getElementById("recipientName").value=item.recipientName;
+  document.getElementById("pixKey").value=item.pixKey;
+  editingId=id;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 
-      let payload =
-        field("00", "01") +
-        merchantAccount +
-        field("52", "0000") +
-        field("53", "986");
+function deleteKey(id){
+  if(!confirm("Excluir esta chave Pix deste navegador?"))return;
+  setKeys(getKeys().filter(k=>k.id!==id));
+  renderKeys(); populateSelect();
+}
 
-      if (amount && Number(amount) > 0) {
-        payload += field("54", Number(amount).toFixed(2));
-      }
+function clearForm(){
+  document.getElementById("idName").value="";
+  document.getElementById("recipientName").value="";
+  document.getElementById("pixKey").value="";
+  editingId=null;
+}
 
-      payload +=
-        field("58", "BR") +
-        field("59", merchantName) +
-        field("60", merchantCity) +
-        field("62", field("05", TXID));
+function renderKeys(){
+  const box=document.getElementById("savedKeys");
+  const keys=getKeys();
+  if(!keys.length){
+    box.innerHTML='<p class="muted">Nenhuma chave cadastrada ainda.</p>';
+    return;
+  }
+  box.innerHTML=keys.map(k=>`
+    <div class="saved">
+      <div class="saved-info">
+        <strong>${escapeHtml(k.idName)}</strong>
+        <span>${escapeHtml(k.recipientName)} • ${escapeHtml(k.pixKey)}</span>
+      </div>
+      <div class="saved-actions">
+        <button class="secondary" onclick="editKey('${k.id}')">Editar</button>
+        <button class="danger" onclick="deleteKey('${k.id}')">Excluir</button>
+      </div>
+    </div>`).join("");
+}
 
-      payload += "6304";
-      payload += crc16(payload);
+function populateSelect(){
+  const select=document.getElementById("keySelect");
+  const old=select.value;
+  select.innerHTML='<option value="">Selecione uma chave...</option>';
+  getKeys().forEach(k=>{
+    const o=document.createElement("option");
+    o.value=k.id;
+    o.textContent=k.idName+" — "+k.recipientName;
+    select.appendChild(o);
+  });
+  if(getKeys().some(k=>k.id===old))select.value=old;
+}
 
-      return payload;
-    }
+function selectKey(){
+  const id=document.getElementById("keySelect").value;
+  const k=getKeys().find(x=>x.id===id);
+  if(k)document.getElementById("recipientDisplay").textContent="Recebedor: "+k.recipientName;
+}
 
-    function generatePix() {
-      try {
-        const amount = document.getElementById("amount").value;
-        const pix = buildPix(amount);
+function generatePix(){
+  const id=document.getElementById("keySelect").value;
+  const k=getKeys().find(x=>x.id===id);
+  if(!k){ setStatus("Selecione uma chave Pix primeiro."); return; }
 
-        document.getElementById("pixCode").value = pix;
-        document.getElementById("amountDisplay").textContent =
-          amount && Number(amount) > 0
-            ? Number(amount).toLocaleString("pt-BR", {style:"currency", currency:"BRL"})
-            : "Valor livre";
+  try{
+    const amount=document.getElementById("amount").value;
+    const pix=buildPix(k.pixKey,k.recipientName,amount);
+    document.getElementById("pixCode").value=pix;
+    document.getElementById("recipientDisplay").textContent="Recebedor: "+k.recipientName;
+    document.getElementById("amountDisplay").textContent=amount&&Number(amount)>0
+      ? Number(amount).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})
+      : "Valor livre";
 
-        const qr = document.getElementById("qrcode");
-        qr.innerHTML = "";
-        new QRCode(qr, {
-          text: pix,
-          width: 230,
-          height: 230,
-          correctLevel: QRCode.CorrectLevel.M
-        });
+    const qr=document.getElementById("qrcode");
+    qr.innerHTML="";
+    new QRCode(qr,{text:pix,width:230,height:230,correctLevel:QRCode.CorrectLevel.M});
+    setStatus("Pix gerado com sucesso.");
+  }catch(e){setStatus(e.message);}
+}
 
-        document.getElementById("status").textContent = "Pix gerado com sucesso.";
-      } catch (e) {
-        document.getElementById("status").textContent = e.message;
-      }
-    }
+async function copyPix(){
+  const input=document.getElementById("pixCode");
+  if(!input.value){generatePix();return;}
+  if(!input.value)return;
+  try{await navigator.clipboard.writeText(input.value);}
+  catch(e){input.select();document.execCommand("copy");}
+  setStatus("Pix copia e cola copiado!");
+}
 
-    async function copyPix() {
-      const input = document.getElementById("pixCode");
-      if (!input.value) generatePix();
-      try {
-        await navigator.clipboard.writeText(input.value);
-        document.getElementById("status").textContent = "Pix copia e cola copiado!";
-      } catch {
-        input.select();
-        document.execCommand("copy");
-        document.getElementById("status").textContent = "Pix copia e cola copiado!";
-      }
-    }
+function sendWhatsApp(){
+  if(!document.getElementById("pixCode").value)generatePix();
+  const pix=document.getElementById("pixCode").value;
+  if(!pix)return;
+  const amount=document.getElementById("amount").value;
+  const k=getKeys().find(x=>x.id===document.getElementById("keySelect").value);
+  const valor=amount&&Number(amount)>0?Number(amount).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}):"valor livre";
+  const msg=`Olá! Segue meu Pix para pagamento.\\n\\n👤 Recebedor: ${k.recipientName}\\n📍 Itumbiara - GO\\n💰 Valor: ${valor}\\n\\n📱 Pix copia e cola:\\n${pix}`;
+  window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");
+}
 
-    function sendWhatsApp() {
-      const amount = document.getElementById("amount").value;
-      if (!document.getElementById("pixCode").value) generatePix();
+async function sharePix(){
+  if(!document.getElementById("pixCode").value)generatePix();
+  const pix=document.getElementById("pixCode").value;
+  if(!pix)return;
+  if(navigator.share){
+    await navigator.share({title:"Pagamento Pix",text:"Pix copia e cola:\\n"+pix});
+  }else{
+    await copyPix();
+  }
+}
 
-      const pix = document.getElementById("pixCode").value;
-      const valor = amount && Number(amount) > 0
-        ? Number(amount).toLocaleString("pt-BR", {style:"currency", currency:"BRL"})
-        : "valor livre";
+function setStatus(text){
+  document.getElementById("status").textContent = text;
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
 
-      const message =
-        `Olá! Segue meu Pix para pagamento.\n\n` +
-        `💰 Valor: ${valor}\n` +
-        `📱 Pix copia e cola:\n${pix}\n\n` +
-        `Obrigado!`;
-
-      window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank");
-    }
-
-    generatePix();
-  </script>
+renderKeys();
+populateSelect();
+</script>
 </body>
 </html>
