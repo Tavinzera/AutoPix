@@ -152,7 +152,7 @@ function setKeys(keys){
 
 function normalize(text,max){
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-    .toUpperCase().replace(/[^A-Z0-9 $%*+\\-./:]/g,"").substring(0,max);
+    .toUpperCase().replace(/[^A-Z0-9 $%*+-./:]/g,"").substring(0,max);
 }
 function field(id,value){ return id + String(value.length).padStart(2,"0") + value; }
 
@@ -231,24 +231,7 @@ function saveKey(){
 
   editingId = null;
   clearForm();
-  function testStorage(){
-  try {
-    const testKey = "__pix_test__";
-    localStorage.setItem(testKey, "ok");
-    const result = localStorage.getItem(testKey);
-    localStorage.removeItem(testKey);
-
-    if (result === "ok") {
-      alert("✅ O armazenamento do navegador está funcionando. Suas chaves podem ser salvas.");
-    } else {
-      alert("⚠️ O navegador não confirmou o armazenamento.");
-    }
-  } catch(e) {
-    alert("❌ Este modo de abertura do arquivo não permite localStorage. Abra a página por uma hospedagem/servidor web.");
-  }
-}
-
-renderKeys();
+  renderKeys();
   populateSelect();
 
   // Seleciona automaticamente a chave recém-cadastrada/alterada.
@@ -380,6 +363,23 @@ function setStatus(text){
 }
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+
+function testStorage(){
+  try {
+    const testKey = "__pix_test__";
+    localStorage.setItem(testKey, "ok");
+    const result = localStorage.getItem(testKey);
+    localStorage.removeItem(testKey);
+
+    if (result === "ok") {
+      alert("✅ O armazenamento do navegador está funcionando. Suas chaves podem ser salvas.");
+    } else {
+      alert("⚠️ O navegador não confirmou o armazenamento.");
+    }
+  } catch(e) {
+    alert("❌ Este modo de abertura do arquivo não permite localStorage. Abra a página por uma hospedagem/servidor web.");
+  }
 }
 
 renderKeys();
