@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerar Pix</title>
+</head>
+<body>
+
+<input id="valor" type="number" step="0.01" placeholder="Valor">
+<button onclick="gerarPix()">Gerar Pix</button>
+
+<br><br>
+
+<textarea id="pix" rows="5" cols="60" readonly></textarea>
+
+<script>
+const CHAVE_PIX = "26882847000130";
+const NOME_LOJA = "VÉRTICE IDIOMAS LTDA";
+const CIDADE = "ITUMBIARA";
+
+function gerarPix() {
+    const valor = Number(document.getElementById("valor").value);
+
+    if (!valor || valor <= 0) {
+        alert("Digite um valor válido");
+        return;
+    }
+
+    const pix = montarPix(
+        CHAVE_PIX,
+        NOME_LOJA,
+        CIDADE,
+        valor.toFixed(2)
+    );
+
+    document.getElementById("pix").value = pix;
+}
+
+function campo(id, valor) {
+    return id + String(valor.length).padStart(2, "0") + valor;
+}
+
+function montarPix(chave, nome, cidade, valor) {
+    let payload = "";
+
+    payload += campo("00", "01");
+
+    let merchantAccount =
+        campo("00", "BR.GOV.BCB.PIX") +
+        campo("01", chave);
+
+    payload += campo("26", merchantAccount);
+
+    payload += campo("52", "0000");
+    payload += campo("53", "986");
+    payload += campo("54", valor);
+    payload += campo("58", "BR");
+    payload += campo("59", nome.substring(0, 25));
+    payload += campo("60", cidade.substring(0, 15));
+
+    // TXID vazio
+    payload += campo("62", campo("05", ""));
+
+    // CRC
+    payload += "6304";
+    payload += crc16(payload);
+
+    return payload;
+}
+
+function crc16(str) {
+    let crc = 0xFFFF;
+
+    for (let i = 0; i < str.length; i++) {
+        crc ^= str.charCodeAt(i) << 8;
+
+        for (let j = 0; j < 8; j++) {
+            if ((crc & 0x8000) !== 0) {
+                crc = (crc << 1) ^ 0x1021;
+            } else {
+                crc <<= 1;
+            }
+
+            crc &= 0xFFFF;
+        }
+    }
+
+    return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+</script>
+
+</body>
+</html>
