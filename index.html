@@ -39,6 +39,7 @@ dialog{background:var(--card);color:var(--txt);border:1px solid var(--line);bord
 <main>
 <section id="inicio" class="page active">
  <button class="primary big" onclick="novo()">＋ Gerar pagamento</button>
+ <div id="syncBar" class="hint" style="cursor:pointer;text-align:center;margin-top:10px" onclick="sincronizar(true)"></div>
  <div class="stats"><div class="stat"><small>A RECEBER</small><b id="stPend" style="color:var(--warn)">R$ 0,00</b></div><div class="stat"><small>RECEBIDO</small><b id="stPago" style="color:var(--ok)">R$ 0,00</b></div></div>
  <div class="tools"><input id="busca" placeholder="🔎 Buscar aluno..." oninput="renderPags()"><div class="tabs" id="tabs"><button data-f="todos" class="on">Todos</button><button data-f="pend">Pendentes</button><button data-f="pago">Pagos</button></div></div>
  <div id="listaPags"></div>
@@ -60,9 +61,10 @@ dialog{background:var(--card);color:var(--txt);border:1px solid var(--line);bord
  <div class="card"><h2>Minhas chaves</h2><div id="listaChaves"></div>
  <div class="actions"><button class="secondary" onclick="exportar()">⬇️ Exportar backup</button><button class="secondary" onclick="$('arquivo').click()">⬆️ Importar backup</button><input type="file" id="arquivo" accept=".json,application/json" class="hidden" onchange="importar(this)"></div>
  <div class="hint">Os dados ficam só neste navegador. O backup inclui chaves e pagamentos. Exporte de vez em quando.</div></div>
+<div class="card"><h2>Google: planilha e comprovantes</h2><p style="color:var(--mut);margin-top:0">Cada pessoa conecta o próprio e-mail. Os dados vão para a planilha “AutoPix - Dados” e os comprovantes para a pasta “AutoPix Comprovantes”, sempre no Drive de quem conectou. Só funciona com o sistema hospedado em https://.</p><label>ID do cliente Google (OAuth)</label><input id="cfgGid" placeholder="123456-abc.apps.googleusercontent.com" autocomplete="off"><div class="actions"><button class="secondary" onclick="salvarGid()">Salvar ID</button><button class="primary" onclick="sincronizar(true)">☁️ Conectar / Sincronizar</button><button class="danger" onclick="desconectar()">Desconectar</button></div><div id="gStatus" class="hint" style="margin-top:10px"></div></div>
 <div class="card"><h2>Link de pagamento</h2><p style="color:var(--mut);margin-top:0">Endereço público onde este arquivo está hospedado (https://...). É usado para montar os links que você envia ao pagador.</p><input id="cfgUrl" placeholder="https://seusite.com/index.html"><div class="actions"><button class="secondary" onclick="salvarUrl()">Salvar endereço</button></div></div>
 </section></main>
-<main id="pagador" class="hidden"><div class="card" style="text-align:center"><h2 style="color:var(--mut);font-size:15px">PAGAMENTO PIX</h2><h1 id="pgEmp" style="margin-bottom:4px"></h1><div id="pgVal" style="font-size:30px;font-weight:800;color:var(--ok)"></div><p id="pgAluno" style="color:var(--mut)"></p><div id="qrcodeP" style="display:flex;justify-content:center;margin:14px 0"></div><label style="text-align:left">Pix Copia e Cola</label><div id="pgCode" class="pix-code" style="text-align:left"></div><div class="actions" style="justify-content:center"><button class="primary big" onclick="copiarPagador()">📋 Copiar código Pix</button></div><div class="hint" style="margin-top:14px"><b>Enviar comprovante após pagamento</b></div></div></main>
+<main id="pagador" class="hidden"><div class="card" style="text-align:center"><h2 style="color:var(--mut);font-size:15px">PAGAMENTO PIX</h2><h1 id="pgEmp" style="margin-bottom:4px"></h1><div id="pgVal" style="font-size:30px;font-weight:800;color:var(--ok)"></div><p id="pgAluno" style="color:var(--mut)"></p><div id="qrcodeP" style="display:flex;justify-content:center;margin:14px 0"></div><label style="text-align:left">Pix Copia e Cola</label><div id="pgCode" class="pix-code" style="text-align:left"></div><div class="actions" style="justify-content:center"><button class="primary big" onclick="copiarPagador()">📋 Copiar código Pix</button></div><div style="text-align:left;margin-top:20px;border-top:1px solid var(--line);padding-top:16px"><h2 style="font-size:16px">Como pagar</h2><ol style="padding-left:20px;line-height:1.7;margin:0"><li>Toque em <b>Copiar código Pix</b> (ou escaneie o QR Code com o app do seu banco).</li><li>Abra o app do seu banco e entre em <b>Pix</b>.</li><li>Escolha <b>Pix Copia e Cola</b> e cole o código.</li><li>Confira o <b>valor</b> e o <b>nome do recebedor</b> na tela.</li><li>Confirme o pagamento.</li><li><b>Envie o comprovante</b> para quem te enviou este link.</li></ol></div></div></main>
 
 <datalist id="dlAlunos"></datalist>
 <dialog id="dNovo"><div class="dh"><h2>Gerar pagamento</h2><button class="x" onclick="$('dNovo').close()">×</button></div>
@@ -75,10 +77,11 @@ dialog{background:var(--card);color:var(--txt);border:1px solid var(--line);bord
  <div class="actions"><button class="primary" style="flex:1" onclick="criar()">Gerar Pix</button><button class="secondary" onclick="$('dNovo').close()">Cancelar</button></div></dialog>
 
 <dialog id="dDet"><div class="dh"><h2 id="dAluno"></h2><button class="x" onclick="$('dDet').close()">×</button></div>
- <div class="info"><span>Valor</span><b id="dValor"></b><span>Gerado em</span><div id="dData"></div><span>Alunos</span><div id="dAlunos"></div><span>Recebedor</span><div id="dRec"></div><span>Categoria</span><div id="dCat"></div><span>Obs.</span><div id="dObs"></div><span>Contato</span><div id="dCont"></div><span>Status</span><div id="dStatus"></div></div>
+ <div class="info"><span>Valor</span><b id="dValor"></b><span>Gerado em</span><div id="dData"></div><span>Alunos</span><div id="dAlunos"></div><span>Recebedor</span><div id="dRec"></div><span>Categoria</span><div id="dCat"></div><span>Obs.</span><div id="dObs"></div><span>Comprovante</span><div id="dComp"></div><span>Contato</span><div id="dCont"></div><span>Status</span><div id="dStatus"></div></div>
  <div id="qrcode"></div>
  <label>Pix Copia e Cola</label><div id="pixCode" class="pix-code"></div>
  <div class="actions"><button class="secondary" onclick="copiarPix()">📋 Copiar mensagem</button><button class="secondary" onclick="copiarCodigo()">📋 Só o código</button><button class="primary" onclick="enviarWpp()">📲 WhatsApp</button><button class="secondary" onclick="compartilhar()">🖼️ Enviar com QR</button></div>
+ <div class="actions"><button class="secondary" onclick="comprovanteClick()">📎 Anexar comprovante</button><input type="file" id="arqComp" accept="image/*,application/pdf" class="hidden" onchange="anexarComprovante(this)"></div>
  <div class="actions"><button class="secondary" onclick="copiarLink()">🔗 Copiar link</button><button class="primary" onclick="enviarLink()">🔗 Enviar link no WhatsApp</button></div>
  <div class="actions"><button id="bCobrar" class="secondary" onclick="cobrar(atual)">📲 Cobrar</button><button id="bPago" onclick="alternarPago(atual)" style="flex:1"></button><button class="danger" onclick="excluirPag()">🗑️</button></div></dialog>
 
@@ -86,8 +89,9 @@ dialog{background:var(--card);color:var(--txt);border:1px solid var(--line);bord
 const K_CH="autopix_chaves_v3",K_PG="autopix_pagamentos_v1",CIDADE="ITUMBIARA",UF="GO",TIPOS=["CPF","CNPJ","EMAIL","PHONE","EVP"];
 const $=id=>document.getElementById(id);
 function load(k){try{const a=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(a)?a:[]}catch(e){return[]}}
-let chaves=load(K_CH),pags=load(K_PG),filtro="todos",atual=null;
-function save(){try{localStorage.setItem(K_CH,JSON.stringify(chaves));localStorage.setItem(K_PG,JSON.stringify(pags));return true}catch(e){alert("O navegador não permitiu salvar os dados.");return false}}
+let chaves=load(K_CH),pags=load(K_PG),filtro="todos",atual=null,tomb=loadObj();
+function loadObj(){try{const o=JSON.parse(localStorage.getItem("autopix_tomb")||"{}");return o&&typeof o==="object"&&!Array.isArray(o)?o:{}}catch(e){return{}}}
+function save(){try{localStorage.setItem(K_CH,JSON.stringify(chaves));localStorage.setItem(K_PG,JSON.stringify(pags));localStorage.setItem("autopix_tomb",JSON.stringify(tomb));agendarSync();return true}catch(e){alert("O navegador não permitiu salvar os dados.");return false}}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 function newId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function fmt(v){return Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
@@ -131,7 +135,7 @@ function criar(){
  if(ct&&(ct.length<10||ct.length>13))return alert("Contato inválido. Use DDD + número.");
  const total=(cents/100).toFixed(2);if(cents>999999999999)return alert("Valor total muito alto.");
  const id=newId(),tx=("AP"+Date.now().toString(36)).toUpperCase().slice(0,25);
- pags.push({id,aluno:alunos.map(a=>a.nome).join(", "),alunos,obs:$("nObs").value.trim().slice(0,200),categoria:$("nCat").value==="Mensalidade"?"Mensalidade":"Outros",diaVenc:$("nCat").value==="Mensalidade"?Number($("nDia").value):null,contato:ct,valor:total,criado:new Date().toISOString(),pago:false,pagoEm:null,empresa:c.nomePix,recebedor:ascii(c.nomePix)+" · "+c.identificacao,code:payload(pixKey(c),c.nomePix,c.cidade,total,tx)});
+ pags.push({id,aluno:alunos.map(a=>a.nome).join(", "),alunos,obs:$("nObs").value.trim().slice(0,200),categoria:$("nCat").value==="Mensalidade"?"Mensalidade":"Outros",diaVenc:$("nCat").value==="Mensalidade"?Number($("nDia").value):null,contato:ct,valor:total,criado:new Date().toISOString(),pago:false,pagoEm:null,upd:Date.now(),empresa:c.nomePix,recebedor:ascii(c.nomePix)+" · "+c.identificacao,code:payload(pixKey(c),c.nomePix,c.cidade,total,tx)});
  if(!save()){pags.pop();return}
  $("dNovo").close();renderPags();abrir(id)}
 function renderPags(){
@@ -143,7 +147,7 @@ $("tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;filtro=b.d
 function get(id){return pags.find(p=>p.id===id)}
 function abrir(id){
  const p=get(id);if(!p)return;atual=id;
- $("dAluno").textContent=p.aluno;$("dValor").textContent="R$ "+fmt(p.valor);$("dData").textContent=dt(p.criado);$("dRec").textContent=p.recebedor;$("dAlunos").innerHTML=(p.alunos&&p.alunos.length?p.alunos:[{nome:p.aluno,valor:p.valor}]).map(a=>esc(a.nome)+" — R$ "+fmt(a.valor)).join("<br>");$("dObs").textContent=p.obs||"—";$("dCat").textContent=catTxt(p)||"—";
+ $("dAluno").textContent=p.aluno;$("dValor").textContent="R$ "+fmt(p.valor);$("dData").textContent=dt(p.criado);$("dRec").textContent=p.recebedor;$("dAlunos").innerHTML=(p.alunos&&p.alunos.length?p.alunos:[{nome:p.aluno,valor:p.valor}]).map(a=>esc(a.nome)+" — R$ "+fmt(a.valor)).join("<br>");$("dObs").textContent=p.obs||"—";$("dCat").textContent=catTxt(p)||"—";$("dComp").innerHTML=compHtml(p);
  $("dCont").textContent=p.contato?"+"+normPhone(p.contato):"Não informado";$("pixCode").textContent=p.code;
  $("qrcode").innerHTML="";new QRCode($("qrcode"),{text:p.code,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});
  statusDet();if(!$("dDet").open)$("dDet").showModal()}
@@ -151,8 +155,8 @@ function statusDet(){
  const p=get(atual);if(!p)return;
  $("dStatus").innerHTML=p.pago?`<span class="badge pago">Pago em ${dt(p.pagoEm)}</span>`:`<span class="badge pend">Pendente</span>`;
  const b=$("bPago");b.className=p.pago?"secondary":"ok";b.textContent=p.pago?"↩ Desmarcar como pago":"✓ Marcar como pago";$("bCobrar").classList.toggle("hidden",p.pago)}
-function alternarPago(id){const p=get(id);if(!p)return;p.pago=!p.pago;p.pagoEm=p.pago?new Date().toISOString():null;save();renderPags();if($("dDet").open&&atual===id)statusDet()}
-function excluirPag(){if(!confirm("Excluir este pagamento?"))return;pags=pags.filter(p=>p.id!==atual);save();$("dDet").close();renderPags()}
+function alternarPago(id){const p=get(id);if(!p)return;p.pago=!p.pago;p.pagoEm=p.pago?new Date().toISOString():null;p.upd=Date.now();save();renderPags();if($("dDet").open&&atual===id)statusDet()}
+function excluirPag(){if(!confirm("Excluir este pagamento?"))return;tomb[atual]=Date.now();pags=pags.filter(p=>p.id!==atual);save();$("dDet").close();renderPags()}
 async function copiarPix(){const p=get(atual);if(!p)return;try{await navigator.clipboard.writeText(texto(p));alert("Mensagem copiada!")}catch(e){alert("Não foi possível copiar automaticamente.")}}
 async function copiarCodigo(){const p=get(atual);if(!p)return;try{await navigator.clipboard.writeText(p.code);alert("Código Pix copiado!")}catch(e){alert("Não foi possível copiar automaticamente.")}}
 function catTxt(p){return p.categoria==="Mensalidade"?"Mensalidade · dia "+p.diaVenc:(p.categoria||"")}
@@ -171,11 +175,11 @@ function salvarChave(){
  if(!ascii(nome))return alert("O nome do recebedor precisa ter letras ou números.");
  if(nome.length>25&&!confirm("O nome será cortado para: "+ascii(nome).substring(0,25)+"\nContinuar?"))return;
  const er=validate(t,key);if(er)return alert(er);
- const r={id:id||newId(),identificacao:ident,tipo:t,nomePix:nome,chave:key,cidade:CIDADE,uf:UF};
+ const r={id:id||newId(),identificacao:ident,tipo:t,nomePix:nome,chave:key,cidade:CIDADE,uf:UF,upd:Date.now()};
  if(id){const i=chaves.findIndex(x=>x.id===id);if(i>=0)chaves[i]=r}else chaves.push(r);
  if(save()){limparFormulario();render();alert("Chave salva com sucesso!")}}
 function editar(id){const c=chaves.find(x=>x.id===id);if(!c)return;$("editId").value=c.id;$("identificacao").value=c.identificacao;$("tipo").value=c.tipo;$("nomePix").value=c.nomePix;$("chave").value=c.chave;scrollTo({top:0,behavior:"smooth"})}
-function excluir(id){if(!confirm("Excluir esta chave Pix? Os pagamentos já gerados não são afetados."))return;chaves=chaves.filter(x=>x.id!==id);save();render()}
+function excluir(id){if(!confirm("Excluir esta chave Pix? Os pagamentos já gerados não são afetados."))return;tomb[id]=Date.now();chaves=chaves.filter(x=>x.id!==id);save();render()}
 function limparFormulario(){$("editId").value="";$("identificacao").value="";$("tipo").value="CPF";$("nomePix").value="";$("chave").value=""}
 function mask(c){if(c.tipo==="CPF"&&c.chave.length===11)return c.chave.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,"$1.$2.$3-$4");if(c.tipo==="CNPJ"&&c.chave.length===14)return c.chave.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,"$1.$2.$3/$4-$5");if(c.tipo==="PHONE")return"+"+normPhone(c.chave);return c.chave}
 function render(){$("listaChaves").innerHTML=chaves.length?chaves.map(c=>`<div class="key-item"><div class="key-info"><strong>${esc(c.identificacao)}</strong><small>${esc(c.tipo)} · ${esc(c.nomePix)} · ${esc(mask(c))}</small></div><div class="actions" style="margin:0"><button class="secondary" onclick="editar('${esc(c.id)}')">Editar</button><button class="danger" onclick="excluir('${esc(c.id)}')">Excluir</button></div></div>`).join(""):"<p style='color:var(--mut)'>Nenhuma chave cadastrada.</p>"}
@@ -271,6 +275,93 @@ async function destravar(){
  else{falhas++;$("lockPin").value="";if(falhas>=3){const w=15*(falhas-2);bloq=Date.now()+w*1000;$("lockErr").textContent="Senha incorreta. Aguarde "+w+"s."}else $("lockErr").textContent="Senha incorreta."}}
 function travar(){try{sessionStorage.removeItem("autopix_ok")}catch(e){}$("lock").classList.remove("hidden");$("lockPin").focus()}
 function iniciarLock(){let ok=false;try{ok=sessionStorage.getItem("autopix_ok")==="1"}catch(e){}if(ok||/^#p=/.test(location.hash))$("lock").classList.add("hidden");else $("lockPin").focus()}
+/* ---------- Google: planilha e comprovantes (cada pessoa com a própria conta) ---------- */
+const GCID_PADRAO="";
+let gTok=null,gExp=0,gEmail=localStorage.getItem("autopix_gemail")||"",ultSync="",sujo=false,sincronizando=false,tmr=null;
+const CT={"Content-Type":"application/json"};
+function gClient(){return localStorage.getItem("autopix_gcid")||GCID_PADRAO}
+function statusSync(msg){const t=msg||(!gClient()?"☁️ Google não configurado (aba Chaves Pix)":!gEmail?"☁️ Toque para conectar ao Google":sujo?"☁️ "+gEmail+" · alterações não sincronizadas (toque para sincronizar)":"☁️ "+gEmail+(ultSync?" · sincronizado às "+ultSync:" · conectado"));$("syncBar").textContent=t;$("gStatus").textContent=t}
+function salvarGid(){const v=$("cfgGid").value.trim();if(v&&!/^[\w.-]+\.apps\.googleusercontent\.com$/.test(v))return alert("ID inválido. Ele termina com .apps.googleusercontent.com");if(v)localStorage.setItem("autopix_gcid",v);else localStorage.removeItem("autopix_gcid");statusSync();alert(v?"ID salvo!":"ID removido.");if(v)carregaGIS().catch(()=>{})}
+function carregaGIS(){return new Promise((ok,er)=>{if(window.google&&google.accounts&&google.accounts.oauth2)return ok();const e=document.createElement("script");e.src="https://accounts.google.com/gsi/client";e.onload=ok;e.onerror=()=>er(new Error("Não foi possível carregar o login do Google."));document.head.appendChild(e)})}
+async function gToken(interativo){
+ if(gTok&&Date.now()<gExp-60000)return gTok;
+ const cid=gClient();if(!cid)throw new Error("Informe o ID do cliente Google primeiro.");
+ await carregaGIS();
+ return new Promise((ok,er)=>{const tc=google.accounts.oauth2.initTokenClient({client_id:cid,scope:"https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email",hint:gEmail||undefined,callback:r=>{if(r.error)return er(new Error("Login cancelado ou negado."));gTok=r.access_token;gExp=Date.now()+r.expires_in*1000;ok(gTok)},error_callback:()=>er(new Error("Login do Google não concluído."))});tc.requestAccessToken({prompt:interativo?"select_account":""})})}
+async function gapi(url,opt){
+ opt=opt||{};const t=await gToken(false);
+ const r=await fetch(url,Object.assign({},opt,{headers:Object.assign({Authorization:"Bearer "+t},opt.headers||{})}));
+ if(r.status===401){gTok=null;throw new Error("A sessão do Google expirou. Toque em sincronizar de novo.")}
+ if(!r.ok){let m="";try{m=(await r.json()).error.message}catch(e){}throw new Error("Google: "+(m||r.status))}
+ return r.status===204?null:r.json()}
+function faltou(e){return /not found|404/i.test(e.message)}
+async function acharPlanilha(){
+ const k="autopix_gs_"+gEmail;let id=localStorage.getItem(k);
+ if(id){try{await gapi("https://sheets.googleapis.com/v4/spreadsheets/"+id+"?fields=spreadsheetId");return id}catch(e){if(!faltou(e))throw e;id=null}}
+ const q=encodeURIComponent("name='AutoPix - Dados' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false");
+ const l=await gapi("https://www.googleapis.com/drive/v3/files?q="+q+"&fields=files(id)&orderBy=createdTime");
+ if(l.files.length)id=l.files[0].id;
+ else id=(await gapi("https://sheets.googleapis.com/v4/spreadsheets",{method:"POST",headers:CT,body:JSON.stringify({properties:{title:"AutoPix - Dados"},sheets:[{properties:{title:"Pagamentos"}},{properties:{title:"Dados"}}]})})).spreadsheetId;
+ localStorage.setItem(k,id);return id}
+async function lerRemoto(id){
+ const r=await gapi("https://sheets.googleapis.com/v4/spreadsheets/"+id+"/values/Dados!A:A?valueRenderOption=UNFORMATTED_VALUE"),t=(r.values||[]).map(x=>x[0]||"").join("");
+ if(!t)return null;let o;try{o=JSON.parse(t)}catch(e){throw new Error("Os dados da planilha estão ilegíveis. Não sobrescrevi nada.")}
+ return o&&typeof o==="object"?o:null}
+async function escreverRemoto(id){
+ const base="https://sheets.googleapis.com/v4/spreadsheets/"+id,blob=JSON.stringify({v:1,chaves,pagamentos:pags,tomb}),partes=[];
+ for(let i=0;i<blob.length;i+=40000)partes.push([blob.slice(i,i+40000)]);
+ const rows=[["Data","Alunos","Categoria","Dia de vencimento","Observação","Valor","Status","Data do pagamento","Recebedor","Contato","Comprovante","ID"]].concat([...pags].sort((a,b)=>a.criado.localeCompare(b.criado)).map(p=>[dt(p.criado),p.aluno,p.categoria||"",p.diaVenc||"",p.obs||"",Number(p.valor),p.pago?"Pago":"Pendente",p.pagoEm?dt(p.pagoEm):"",p.recebedor||"",p.contato?"+"+normPhone(p.contato):"",p.comprovante&&p.comprovante.link||"",p.id]));
+ await gapi(base+"/values:batchClear",{method:"POST",headers:CT,body:JSON.stringify({ranges:["Pagamentos!A:Z","Dados!A:A"]})});
+ await gapi(base+"/values:batchUpdate",{method:"POST",headers:CT,body:JSON.stringify({valueInputOption:"RAW",data:[{range:"Pagamentos!A1",values:rows},{range:"Dados!A1",values:partes.length?partes:[[""]]}]})})}
+/* mesclagem: vence a alteração mais recente; exclusões são lembradas */
+const idOk=x=>x&&typeof x.id==="string"&&/^[\w.-]{1,40}$/.test(x.id);
+function okChave(x){return idOk(x)&&TIPOS.includes(x.tipo)&&typeof x.chave==="string"&&typeof x.nomePix==="string"&&typeof x.identificacao==="string"}
+function okPag(x){return idOk(x)&&typeof x.aluno==="string"&&typeof x.code==="string"&&x.code.length<=600&&typeof x.criado==="string"&&!isNaN(new Date(x.criado))&&!!parseValor(String(x.valor))}
+function unirTomb(a,b){const o=Object.assign({},a);for(const k in b)if(typeof b[k]==="number"&&!(o[k]>=b[k]))o[k]=b[k];return o}
+function mesclar(a,b,t){const m=new Map();[...b,...a].forEach(x=>{const o=m.get(x.id);if(!o||(x.upd||0)>(o.upd||0))m.set(x.id,x)});return[...m.values()].filter(x=>!(t[x.id]&&t[x.id]>=(x.upd||0)))}
+async function sincronizar(manual){
+ if(sincronizando)return;
+ if(!gClient()){if(manual){alert("Informe o ID do cliente Google na aba Chaves Pix.");showPage("cadastro")}return}
+ sincronizando=true;clearTimeout(tmr);statusSync("☁️ Sincronizando...");
+ try{
+  await gToken(!gEmail);
+  if(!gEmail){
+   const u=await gapi("https://www.googleapis.com/oauth2/v3/userinfo");if(!u.email)throw new Error("Não consegui ler o e-mail da conta.");
+   if((chaves.length||pags.length)&&!confirm("Enviar os dados deste aparelho para a planilha de "+u.email+"?\n\nCada pessoa deve conectar o próprio e-mail."))throw new Error("Conexão cancelada.");
+   gEmail=u.email;localStorage.setItem("autopix_gemail",gEmail)}
+  const id=await acharPlanilha(),rem=await lerRemoto(id);
+  if(rem){tomb=unirTomb(tomb,rem.tomb||{});chaves=mesclar(chaves,(Array.isArray(rem.chaves)?rem.chaves:[]).filter(okChave),tomb);pags=mesclar(pags,(Array.isArray(rem.pagamentos)?rem.pagamentos:[]).filter(okPag),tomb)}
+  await escreverRemoto(id);save();sujo=false;
+  ultSync=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});render();renderPags();
+ }catch(e){if(!gEmail)gTok=null;sujo=true;if(manual)alert(e.message||"Falha ao sincronizar.")}
+ finally{sincronizando=false;statusSync()}}
+function agendarSync(){if(sincronizando||!gEmail||!gClient())return;sujo=true;clearTimeout(tmr);statusSync();if(gTok&&Date.now()<gExp-60000)tmr=setTimeout(()=>sincronizar(false),3000)}
+function desconectar(){if(!gEmail&&!gTok)return alert("Já está desconectado.");if(!confirm("Desconectar do Google? Os dados continuam neste aparelho e no seu Drive."))return;try{if(gTok&&window.google)google.accounts.oauth2.revoke(gTok)}catch(e){}gTok=null;gExp=0;gEmail="";ultSync="";sujo=false;localStorage.removeItem("autopix_gemail");statusSync()}
+/* comprovantes no Drive */
+async function pastaComprov(){
+ const k="autopix_gf_"+gEmail;let id=localStorage.getItem(k);
+ if(id){try{const f=await gapi("https://www.googleapis.com/drive/v3/files/"+id+"?fields=id,trashed");if(!f.trashed)return id}catch(e){if(!faltou(e))throw e}id=null}
+ const q=encodeURIComponent("name='AutoPix Comprovantes' and mimeType='application/vnd.google-apps.folder' and trashed=false"),l=await gapi("https://www.googleapis.com/drive/v3/files?q="+q+"&fields=files(id)");
+ id=l.files.length?l.files[0].id:(await gapi("https://www.googleapis.com/drive/v3/files?fields=id",{method:"POST",headers:CT,body:JSON.stringify({name:"AutoPix Comprovantes",mimeType:"application/vnd.google-apps.folder"})})).id;
+ localStorage.setItem(k,id);return id}
+async function reduzir(f){if(!/^image\//.test(f.type))return f;try{const bm=await createImageBitmap(f),k=Math.min(1,1600/Math.max(bm.width,bm.height)),c=document.createElement("canvas");c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);c.getContext("2d").drawImage(bm,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(b=>r(b||f),"image/jpeg",.82))}catch(e){return f}}
+function compHtml(p){const c=p.comprovante;return c&&typeof c.link==="string"&&/^https:\/\/(drive|docs)\.google\.com\//.test(c.link)?`<a href="${esc(c.link)}" target="_blank" rel="noopener" style="color:var(--acc2)">Ver no Drive</a>`:"—"}
+function comprovanteClick(){if(!gEmail)return alert("Conecte sua conta Google primeiro (aba Chaves Pix).");$("arqComp").click()}
+async function anexarComprovante(inp){
+ const f=inp.files[0];inp.value="";const p=get(atual);if(!f||!p)return;
+ if(!/^image\//.test(f.type)&&f.type!=="application/pdf")return alert("Envie uma imagem ou um PDF.");
+ try{
+  statusSync("☁️ Enviando comprovante...");
+  const blob=await reduzir(f);if(blob.size>5*1024*1024)throw new Error("Arquivo muito grande (máximo 5 MB).");
+  const pasta=await pastaComprov(),ext=(blob.type.split("/")[1]||"bin").replace("jpeg","jpg"),nome=new Date(p.criado).toISOString().slice(0,10)+" - "+p.aluno.replace(/[\\/:*?"<>|]/g,"").slice(0,60)+" - R$ "+fmt(p.valor)+"."+ext;
+  const b="autopixb"+Date.now(),meta=JSON.stringify({name:nome,parents:[pasta]});
+  const body=new Blob(["--"+b+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+meta+"\r\n--"+b+"\r\nContent-Type: "+(blob.type||"application/octet-stream")+"\r\n\r\n",blob,"\r\n--"+b+"--"]);
+  const r=await gapi("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink",{method:"POST",headers:{"Content-Type":"multipart/related; boundary="+b},body});
+  p.comprovante={id:r.id,nome:r.name,link:r.webViewLink};p.upd=Date.now();save();abrir(p.id);
+  if(!p.pago&&confirm("Comprovante salvo no Drive! Marcar este pagamento como pago?"))alternarPago(p.id)
+ }catch(e){alert(e.message||"Não consegui enviar o comprovante.")}
+ finally{statusSync()}}
+
 /* ---------- link de pagamento ---------- */
 function baseUrl(){const c=localStorage.getItem("autopix_url");if(c)return c;return /^https?:$/.test(location.protocol)?location.origin+location.pathname:""}
 function salvarUrl(){const v=$("cfgUrl").value.trim().split("#")[0];if(v&&!/^https:\/\/\S+$/.test(v))return alert("Use um endereço completo começando com https://");if(v)localStorage.setItem("autopix_url",v);else localStorage.removeItem("autopix_url");alert(v?"Endereço salvo!":"Endereço removido.")}
@@ -291,5 +382,5 @@ function pagadorView(){
  }catch(e){document.querySelectorAll("header,main:not(#pagador)").forEach(x=>x.classList.add("hidden"));$("pagador").classList.remove("hidden");$("pagador").innerHTML='<div class="card vazio">Link inválido ou incompleto. Peça um novo link.</div>';return}
  document.querySelectorAll("header,main:not(#pagador)").forEach(x=>x.classList.add("hidden"));$("pagador").classList.remove("hidden")}
 async function copiarPagador(){try{await navigator.clipboard.writeText(codigoP);alert("Código Pix copiado! Abra o app do seu banco e use Pix Copia e Cola.")}catch(e){prompt("Copie o código:",codigoP)}}
-render();renderPags();pagadorView();iniciarLock();$("cfgUrl").value=localStorage.getItem("autopix_url")||"";
+render();renderPags();pagadorView();iniciarLock();$("cfgGid").value=localStorage.getItem("autopix_gcid")||"";statusSync();if(gClient()&&!/^#p=/.test(location.hash))carregaGIS().catch(()=>{});$("cfgUrl").value=localStorage.getItem("autopix_url")||"";
 </script></body></html>
