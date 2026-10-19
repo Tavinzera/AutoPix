@@ -31,16 +31,25 @@ button.big{width:100%;padding:16px;font-size:17px}
 .hint{font-size:12.5px;color:var(--mut);margin-top:5px}.hidden{display:none}
 dialog{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:18px;padding:20px;width:min(480px,94vw);max-height:92vh}dialog::backdrop{background:#000b}
 .dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.x{background:none;border:0;color:var(--mut);font-size:24px;cursor:pointer}
-.info{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px;margin:10px 0}.info span{color:var(--mut)}.arow{display:grid;grid-template-columns:1fr 110px 34px;gap:8px;margin-bottom:8px;align-items:center}.arow input{padding:11px}.arow .x{padding:0}
-@media(max-width:560px){.row{grid-template-columns:1fr}.key-item{flex-direction:column;align-items:stretch}}
+.info{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px;margin:10px 0}.info span{color:var(--mut)}.arow{display:grid;grid-template-columns:1fr 110px 34px;gap:8px;margin-bottom:8px;align-items:center}.arow input{padding:11px}.arow .x{padding:0}#lock{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center}#lock.hidden{display:none}.stat small{display:block}.bar{margin-bottom:14px}.bl{display:flex;justify-content:space-between;gap:10px;font-size:14px;margin-bottom:5px}.bl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bt{display:flex;height:12px;background:#0e141b;border-radius:99px;overflow:hidden}.bt i{display:block;height:100%}.bar small{color:var(--mut);font-size:12px}.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin-top:8px}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}table.t{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:12px}table.t th,table.t td{text-align:right;padding:8px 6px;border-bottom:1px solid var(--line)}table.t th:first-child,table.t td:first-child{text-align:left}table.t th{color:var(--mut)}.donut{display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:center}.badge.atraso{background:#3a1d22;color:var(--bad)}
+@media(max-width:560px){nav button{padding:8px 9px;font-size:13px}.logo{font-size:18px}.row{grid-template-columns:1fr}.key-item{flex-direction:column;align-items:stretch}}
 </style></head><body>
-<header><div class="logo">Auto<span>Pix</span></div><nav><button id="navInicio" class="active" onclick="showPage('inicio')">Pagamentos</button><button id="navCadastro" onclick="showPage('cadastro')">Chaves Pix</button></nav></header>
+<div id="lock"><div class="card" style="width:min(380px,92vw);text-align:center;margin:0"><div class="logo" style="font-size:26px;margin-bottom:6px">Auto<span>Pix</span></div><p style="color:var(--mut)">Digite a senha para entrar</p><input id="lockPin" type="password" placeholder="Senha" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter')destravar()"><div class="actions"><button class="primary big" onclick="destravar()">🔒 Entrar</button></div><div id="lockErr" class="hint" style="color:var(--bad);min-height:18px;margin-top:10px"></div></div></div>
+<header><div class="logo">Auto<span>Pix</span></div><nav><button id="navInicio" class="active" onclick="showPage('inicio')">Pagamentos</button><button id="navRelatorio" onclick="showPage('relatorio')">Relatório</button><button id="navCadastro" onclick="showPage('cadastro')">Chaves Pix</button><button title="Bloquear" onclick="travar()">🔒</button></nav></header>
 <main>
 <section id="inicio" class="page active">
  <button class="primary big" onclick="novo()">＋ Gerar pagamento</button>
  <div class="stats"><div class="stat"><small>A RECEBER</small><b id="stPend" style="color:var(--warn)">R$ 0,00</b></div><div class="stat"><small>RECEBIDO</small><b id="stPago" style="color:var(--ok)">R$ 0,00</b></div></div>
  <div class="tools"><input id="busca" placeholder="🔎 Buscar aluno..." oninput="renderPags()"><div class="tabs" id="tabs"><button data-f="todos" class="on">Todos</button><button data-f="pend">Pendentes</button><button data-f="pago">Pagos</button></div></div>
  <div id="listaPags"></div>
+</section>
+<section id="relatorio" class="page">
+ <div class="card"><h1>Relatório</h1><div class="row"><div><label>Período (pela data de geração)</label><select id="relMes" onchange="renderRel()"></select></div><div style="display:flex;align-items:flex-end"><button class="secondary" style="width:100%" onclick="exportarCsv()">⬇️ Exportar para Excel (CSV)</button></div></div></div>
+ <div class="stats"><div class="stat"><small>GERADO</small><b id="rGer"></b><small id="rGerN"></small></div><div class="stat"><small>RECEBIDO</small><b id="rRec" style="color:var(--ok)"></b><small id="rTaxa"></small></div><div class="stat"><small>PENDENTE</small><b id="rPen" style="color:var(--warn)"></b><small id="rPenN"></small></div><div class="stat"><small>TICKET MÉDIO</small><b id="rTick"></b><small id="rTickN"></small></div></div>
+ <div class="card"><h2>Últimos 6 meses</h2><div id="gMeses"></div><div class="leg"><span><i class="dot" style="background:var(--ok)"></i>Recebido</span><span><i class="dot" style="background:var(--warn)"></i>Pendente</span></div></div>
+ <div class="card"><h2>Por categoria</h2><div id="gCat"></div></div>
+ <div class="card"><h2>Por chave Pix</h2><div id="gChave"></div></div>
+ <div class="card"><h2>Pendências mais antigas</h2><div id="gPend"></div></div>
 </section>
 <section id="cadastro" class="page">
  <div class="card"><h1>Cadastro de chaves</h1><p style="color:var(--mut)">Cidade fixa: <strong>Itumbiara - GO</strong></p><input type="hidden" id="editId">
@@ -51,8 +60,11 @@ dialog{background:var(--card);color:var(--txt);border:1px solid var(--line);bord
  <div class="card"><h2>Minhas chaves</h2><div id="listaChaves"></div>
  <div class="actions"><button class="secondary" onclick="exportar()">⬇️ Exportar backup</button><button class="secondary" onclick="$('arquivo').click()">⬆️ Importar backup</button><input type="file" id="arquivo" accept=".json,application/json" class="hidden" onchange="importar(this)"></div>
  <div class="hint">Os dados ficam só neste navegador. O backup inclui chaves e pagamentos. Exporte de vez em quando.</div></div>
+<div class="card"><h2>Link de pagamento</h2><p style="color:var(--mut);margin-top:0">Endereço público onde este arquivo está hospedado (https://...). É usado para montar os links que você envia ao pagador.</p><input id="cfgUrl" placeholder="https://seusite.com/index.html"><div class="actions"><button class="secondary" onclick="salvarUrl()">Salvar endereço</button></div></div>
 </section></main>
+<main id="pagador" class="hidden"><div class="card" style="text-align:center"><h2 style="color:var(--mut);font-size:15px">PAGAMENTO PIX</h2><h1 id="pgEmp" style="margin-bottom:4px"></h1><div id="pgVal" style="font-size:30px;font-weight:800;color:var(--ok)"></div><p id="pgAluno" style="color:var(--mut)"></p><div id="qrcodeP" style="display:flex;justify-content:center;margin:14px 0"></div><label style="text-align:left">Pix Copia e Cola</label><div id="pgCode" class="pix-code" style="text-align:left"></div><div class="actions" style="justify-content:center"><button class="primary big" onclick="copiarPagador()">📋 Copiar código Pix</button></div><div class="hint" style="margin-top:14px"><b>Enviar comprovante após pagamento</b></div></div></main>
 
+<datalist id="dlAlunos"></datalist>
 <dialog id="dNovo"><div class="dh"><h2>Gerar pagamento</h2><button class="x" onclick="$('dNovo').close()">×</button></div>
  <label>Alunos</label><div id="nAlunos"></div>
  <button class="secondary" type="button" onclick="addAluno()">＋ Adicionar aluno</button>
@@ -67,7 +79,8 @@ dialog{background:var(--card);color:var(--txt);border:1px solid var(--line);bord
  <div id="qrcode"></div>
  <label>Pix Copia e Cola</label><div id="pixCode" class="pix-code"></div>
  <div class="actions"><button class="secondary" onclick="copiarPix()">📋 Copiar mensagem</button><button class="secondary" onclick="copiarCodigo()">📋 Só o código</button><button class="primary" onclick="enviarWpp()">📲 WhatsApp</button><button class="secondary" onclick="compartilhar()">🖼️ Enviar com QR</button></div>
- <div class="actions"><button id="bPago" onclick="alternarPago(atual)" style="flex:1"></button><button class="danger" onclick="excluirPag()">🗑️</button></div></dialog>
+ <div class="actions"><button class="secondary" onclick="copiarLink()">🔗 Copiar link</button><button class="primary" onclick="enviarLink()">🔗 Enviar link no WhatsApp</button></div>
+ <div class="actions"><button id="bCobrar" class="secondary" onclick="cobrar(atual)">📲 Cobrar</button><button id="bPago" onclick="alternarPago(atual)" style="flex:1"></button><button class="danger" onclick="excluirPag()">🗑️</button></div></dialog>
 
 <script>
 const K_CH="autopix_chaves_v3",K_PG="autopix_pagamentos_v1",CIDADE="ITUMBIARA",UF="GO",TIPOS=["CPF","CNPJ","EMAIL","PHONE","EVP"];
@@ -79,7 +92,7 @@ function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",
 function newId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function fmt(v){return Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
 function dt(s){return new Date(s).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"})}
-function showPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(p).classList.add("active");$("navInicio").classList.toggle("active",p==="inicio");$("navCadastro").classList.toggle("active",p==="cadastro");if(p==="inicio")renderPags();else render();scrollTo({top:0})}
+function showPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(p).classList.add("active");$("navInicio").classList.toggle("active",p==="inicio");$("navCadastro").classList.toggle("active",p==="cadastro");$("navRelatorio").classList.toggle("active",p==="relatorio");if(p==="inicio")renderPags();else if(p==="relatorio")renderRel();else render();scrollTo({top:0})}
 
 /* ---------- validação ---------- */
 function normPhone(v){const d=String(v).replace(/\D/g,"");return d.length>=12&&d.startsWith("55")?d:"55"+d}
@@ -100,9 +113,9 @@ function payload(k,n,c,v,tx){const m=f("00","br.gov.bcb.pix")+f("01",k);let p=f(
 function novo(){
  if(!chaves.length){alert("Cadastre uma chave Pix primeiro.");return showPage("cadastro")}
  $("nChave").innerHTML=chaves.map(c=>`<option value="${esc(c.id)}">${esc(c.identificacao)} — ${esc(c.tipo)}</option>`).join("");
- $("nAlunos").innerHTML="";addAluno();$("nContato").value="";$("nObs").value="";$("nCat").value="Mensalidade";$("nDia").value="5";catChange();totalNovo();$("dNovo").showModal();$("nAlunos").querySelector(".an").focus()}
+ histAlunos();$("nAlunos").innerHTML="";addAluno();$("nContato").value="";$("nObs").value="";$("nCat").value="Mensalidade";$("nDia").value="5";catChange();totalNovo();$("dNovo").showModal();$("nAlunos").querySelector(".an").focus()}
 function catChange(){$("nDiaBox").classList.toggle("hidden",$("nCat").value!=="Mensalidade")}
-function addAluno(){const d=document.createElement("div");d.className="arow";d.innerHTML='<input class="an" placeholder="Nome do aluno" autocomplete="off"><input class="av" inputmode="decimal" placeholder="Valor" oninput="totalNovo()"><button class="x" type="button" title="Remover" onclick="rmAluno(this)">×</button>';$("nAlunos").appendChild(d);if($("dNovo").open)d.querySelector(".an").focus()}
+function addAluno(){const d=document.createElement("div");d.className="arow";d.innerHTML='<input class="an" list="dlAlunos" placeholder="Nome do aluno" autocomplete="off" onchange="autoAluno(this)"><input class="av" inputmode="decimal" placeholder="Valor" oninput="totalNovo()"><button class="x" type="button" title="Remover" onclick="rmAluno(this)">×</button>';$("nAlunos").appendChild(d);if($("dNovo").open)d.querySelector(".an").focus()}
 function rmAluno(b){if($("nAlunos").children.length>1){b.parentNode.remove();totalNovo()}}
 function totalNovo(){let t=0;document.querySelectorAll("#nAlunos .av").forEach(i=>{const v=parseValor(i.value);if(v)t+=Math.round(Number(v)*100)});$("nTotal").textContent="R$ "+fmt(t/100)}
 function criar(){
@@ -122,8 +135,8 @@ function criar(){
  if(!save()){pags.pop();return}
  $("dNovo").close();renderPags();abrir(id)}
 function renderPags(){
- const q=ascii($("busca").value),lista=pags.filter(p=>(filtro==="todos"||(filtro==="pago")===p.pago)&&(!q||ascii(p.aluno).includes(q))).sort((a,b)=>b.criado.localeCompare(a.criado));
- $("listaPags").innerHTML=lista.length?lista.map(p=>`<div class="pg" onclick="abrir('${esc(p.id)}')"><button class="chk ${p.pago?"on":""}" title="${p.pago?"Desmarcar pago":"Marcar como pago"}" onclick="event.stopPropagation();alternarPago('${esc(p.id)}')">✓</button><div class="pg-main"><strong>${esc(p.aluno)}</strong><small>${catTxt(p)?esc(catTxt(p))+" · ":""}${dt(p.criado)}${p.obs?" · "+esc(p.obs):""}</small></div><div class="pg-side"><b>R$ ${fmt(p.valor)}</b><span class="badge ${p.pago?"pago":"pend"}">${p.pago?"Pago":"Pendente"}</span></div></div>`).join(""):`<div class="vazio">${pags.length?"Nenhum pagamento encontrado.":"Nenhum pagamento gerado ainda.<br>Toque em “Gerar pagamento” para começar."}</div>`;
+ const q=ascii($("busca").value),lista=pags.filter(p=>(filtro==="todos"||(filtro==="pago")===p.pago)&&(!q||ascii(p.aluno).includes(q))).sort((a,b)=>filtro==="pend"?a.criado.localeCompare(b.criado):b.criado.localeCompare(a.criado));
+ $("listaPags").innerHTML=lista.length?lista.map(p=>`<div class="pg" onclick="abrir('${esc(p.id)}')"><button class="chk ${p.pago?"on":""}" title="${p.pago?"Desmarcar pago":"Marcar como pago"}" onclick="event.stopPropagation();alternarPago('${esc(p.id)}')">✓</button><div class="pg-main"><strong>${esc(p.aluno)}</strong><small>${catTxt(p)?esc(catTxt(p))+" · ":""}${dt(p.criado)}${p.obs?" · "+esc(p.obs):""}</small></div><div class="pg-side"><b>R$ ${fmt(p.valor)}</b><span class="badge ${p.pago?"pago":diasPend(p)>=5?"atraso":"pend"}">${p.pago?"Pago":pendTxt(p)}</span></div>${p.pago?"":`<button class="chk" title="Cobrar pelo WhatsApp" onclick="event.stopPropagation();cobrar('${esc(p.id)}')">📲</button>`}</div>`).join(""):`<div class="vazio">${pags.length?"Nenhum pagamento encontrado.":"Nenhum pagamento gerado ainda.<br>Toque em “Gerar pagamento” para começar."}</div>`;
  const soma=b=>pags.filter(p=>p.pago===b).reduce((s,p)=>s+Number(p.valor),0);
  $("stPend").textContent="R$ "+fmt(soma(false));$("stPago").textContent="R$ "+fmt(soma(true))}
 $("tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;filtro=b.dataset.f;document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));renderPags()};
@@ -137,7 +150,7 @@ function abrir(id){
 function statusDet(){
  const p=get(atual);if(!p)return;
  $("dStatus").innerHTML=p.pago?`<span class="badge pago">Pago em ${dt(p.pagoEm)}</span>`:`<span class="badge pend">Pendente</span>`;
- const b=$("bPago");b.className=p.pago?"secondary":"ok";b.textContent=p.pago?"↩ Desmarcar como pago":"✓ Marcar como pago"}
+ const b=$("bPago");b.className=p.pago?"secondary":"ok";b.textContent=p.pago?"↩ Desmarcar como pago":"✓ Marcar como pago";$("bCobrar").classList.toggle("hidden",p.pago)}
 function alternarPago(id){const p=get(id);if(!p)return;p.pago=!p.pago;p.pagoEm=p.pago?new Date().toISOString():null;save();renderPags();if($("dDet").open&&atual===id)statusDet()}
 function excluirPag(){if(!confirm("Excluir este pagamento?"))return;pags=pags.filter(p=>p.id!==atual);save();$("dDet").close();renderPags()}
 async function copiarPix(){const p=get(atual);if(!p)return;try{await navigator.clipboard.writeText(texto(p));alert("Mensagem copiada!")}catch(e){alert("Não foi possível copiar automaticamente.")}}
@@ -188,5 +201,95 @@ function importar(inp){
   if(nc||np)save();render();renderPags();alert(nc+" chave(s) e "+np+" pagamento(s) importados.")
  }catch(e){alert("Arquivo inválido.")}inp.value=""};
  rd.readAsText(file)}
-render();renderPags();
+/* ---------- autocompletar pelo histórico ---------- */
+let hist={};
+function histAlunos(){hist={};[...pags].sort((a,b)=>a.criado.localeCompare(b.criado)).forEach(p=>(p.alunos&&p.alunos.length?p.alunos:[{nome:p.aluno,valor:p.valor}]).forEach(a=>{if(a.nome)hist[ascii(a.nome)]={nome:a.nome,valor:a.valor,contato:p.contato||""}}));$("dlAlunos").innerHTML=Object.values(hist).sort((a,b)=>a.nome.localeCompare(b.nome)).map(h=>`<option value="${esc(h.nome)}">`).join("")}
+function autoAluno(i){const h=hist[ascii(i.value)];if(!h)return;const v=i.parentNode.querySelector(".av");i.value=h.nome;if(!v.value.trim()){v.value=fmt(h.valor);totalNovo()}if(h.contato&&!$("nContato").value.trim())$("nContato").value=h.contato}
+
+/* ---------- pendências e cobrança ---------- */
+function diasPend(p){return Math.floor((Date.now()-new Date(p.criado))/864e5)}
+function pendTxt(p){const d=diasPend(p);return d>=1?"Pendente há "+d+(d===1?" dia":" dias"):"Pendente"}
+function cobrar(id){const p=get(id);if(!p)return;const t=`Olá! Passando para lembrar do pagamento pendente de ${p.aluno} no valor de R$ ${fmt(p.valor)}${p.categoria==="Mensalidade"?" (mensalidade, vencimento dia "+p.diaVenc+")":""}.\n\n*Enviar comprovante após pagamento*\nPix copia e cola 👇\n${p.code}`;location.href="https://wa.me/"+(p.contato?normPhone(p.contato):"")+"?text="+encodeURIComponent(t)}
+
+/* ---------- relatório ---------- */
+const MES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+function mkey(iso){const d=new Date(iso);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
+function mlabel(k){const a=k.split("-");return MES[a[1]-1]+"/"+a[0].slice(2)}
+function brl(v){return"R$ "+fmt(v)}
+function soma(a){return a.reduce((s,p)=>s+Math.round(Number(p.valor)*100),0)/100}
+function curto(v){return v>=1000?(v/1000).toFixed(1).replace(/\.0$/,"").replace(".",",")+"k":String(Math.round(v))}
+function periodo(){const m=$("relMes").value;return pags.filter(p=>m==="todos"||mkey(p.criado)===m)}
+function renderRel(){
+ const cur=mkey(new Date().toISOString()),sel=$("relMes"),old=sel.value||cur;
+ const ks=[...new Set(pags.map(p=>mkey(p.criado)).concat(cur))].sort().reverse();
+ sel.innerHTML='<option value="todos">Todo o período</option>'+ks.map(k=>`<option value="${k}">${mlabel(k)}</option>`).join("");
+ sel.value=old==="todos"||ks.includes(old)?old:cur;
+ const L=periodo(),rec=soma(L.filter(p=>p.pago)),pen=soma(L.filter(p=>!p.pago)),tot=Math.round((rec+pen)*100)/100;
+ $("rGer").textContent=brl(tot);$("rGerN").textContent=L.length+(L.length===1?" pagamento":" pagamentos");
+ $("rRec").textContent=brl(rec);$("rTaxa").textContent=(tot?Math.round(rec/tot*100):0)+"% do gerado";
+ $("rPen").textContent=brl(pen);$("rPenN").textContent=L.filter(p=>!p.pago).length+" em aberto";
+ $("rTick").textContent=brl(L.length?tot/L.length:0);$("rTickN").textContent="por pagamento";
+ /* últimos 6 meses */
+ const ms=[],n=new Date();for(let i=5;i>=0;i--){const x=new Date(n.getFullYear(),n.getMonth()-i,1);ms.push(x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0"))}
+ const data=ms.map(k=>{const l=pags.filter(p=>mkey(p.criado)===k);return{k,r:soma(l.filter(p=>p.pago)),p:soma(l.filter(p=>!p.pago))}}),mx=Math.max(1,...data.map(d=>d.r+d.p));
+ const W=600,base=190,top=34,bw=56,gap=(W-6*bw)/7;
+ let svg='<svg viewBox="0 0 600 220" width="100%" role="img" aria-label="Recebido e pendente por mês"><line x1="0" x2="600" y1="'+base+'" y2="'+base+'" style="stroke:var(--line)"/>';
+ data.forEach((d,i)=>{const x=gap+i*(bw+gap),hr=d.r/mx*(base-top),hp=d.p/mx*(base-top),t=d.r+d.p;
+  svg+=`<rect x="${x}" y="${base-hr}" width="${bw}" height="${hr}" style="fill:var(--ok)"/><rect x="${x}" y="${base-hr-hp}" width="${bw}" height="${hp}" style="fill:var(--warn)"/>`;
+  svg+=`<text x="${x+bw/2}" y="${base-hr-hp-8}" text-anchor="middle" style="fill:var(--txt);font-size:12px;font-weight:700">${t?curto(t):""}</text>`;
+  svg+=`<text x="${x+bw/2}" y="${base+20}" text-anchor="middle" style="fill:${d.k===sel.value?"var(--acc2)":"var(--mut)"};font-size:12px;font-weight:700">${mlabel(d.k)}</text>`});
+ $("gMeses").innerHTML=svg+"</svg>";
+ /* categorias */
+ const cats={};L.forEach(p=>{const c=p.categoria||"Sem categoria",o=cats[c]=cats[c]||{n:0,r:0,p:0};o.n++;o[p.pago?"r":"p"]+=Number(p.valor)});
+ const en=Object.entries(cats).sort((a,b)=>b[1].r+b[1].p-a[1].r-a[1].p),cols=["#7c6cff","#38bdf8","#f472b6","#fbbf24"];
+ if(!en.length)$("gCat").innerHTML='<div class="vazio">Sem pagamentos neste período.</div>';
+ else{const R=60,C=2*Math.PI*R;let off=0,seg="";
+  en.forEach((e,i)=>{const len=(e[1].r+e[1].p)/(tot||1)*C;seg+=`<circle r="${R}" cx="80" cy="80" fill="none" stroke="${cols[i%4]}" stroke-width="26" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 80 80)"/>`;off+=len});
+  $("gCat").innerHTML=`<div class="donut"><svg viewBox="0 0 160 160" width="160" height="160" role="img" aria-label="Distribuição por categoria">${seg}<text x="80" y="76" text-anchor="middle" style="fill:var(--mut);font-size:11px">Total</text><text x="80" y="94" text-anchor="middle" style="fill:var(--txt);font-size:14px;font-weight:800">${curto(tot)}</text></svg></div><div style="overflow-x:auto"><table class="t"><tr><th>Categoria</th><th>Qtd</th><th>Recebido</th><th>Pendente</th><th>%</th></tr>${en.map((e,i)=>`<tr><td><i class="dot" style="background:${cols[i%4]}"></i>${esc(e[0])}</td><td>${e[1].n}</td><td>${brl(e[1].r)}</td><td>${brl(e[1].p)}</td><td>${Math.round((e[1].r+e[1].p)/(tot||1)*100)}%</td></tr>`).join("")}</table></div>`}
+ /* chaves */
+ const ch={};L.forEach(p=>{const k=p.recebedor||"—",o=ch[k]=ch[k]||{r:0,p:0};o[p.pago?"r":"p"]+=Number(p.valor)});
+ const ce=Object.entries(ch).sort((a,b)=>b[1].r+b[1].p-a[1].r-a[1].p),mc=Math.max(1,...ce.map(e=>e[1].r+e[1].p));
+ $("gChave").innerHTML=ce.length?ce.map(e=>`<div class="bar"><div class="bl"><span>${esc(e[0])}</span><b>${brl(e[1].r+e[1].p)}</b></div><div class="bt"><i style="width:${e[1].r/mc*100}%;background:var(--ok)"></i><i style="width:${e[1].p/mc*100}%;background:var(--warn)"></i></div><small>Recebido ${brl(e[1].r)} · Pendente ${brl(e[1].p)}</small></div>`).join(""):'<div class="vazio">Sem pagamentos neste período.</div>';
+ /* pendências (de todo o período) */
+ const pend=pags.filter(p=>!p.pago).sort((a,b)=>a.criado.localeCompare(b.criado)).slice(0,8);
+ $("gPend").innerHTML=pend.length?pend.map(p=>`<div class="pg" onclick="abrir('${esc(p.id)}')"><div class="pg-main"><strong>${esc(p.aluno)}</strong><small>${dt(p.criado)}</small></div><div class="pg-side"><b>${brl(p.valor)}</b><span class="badge ${diasPend(p)>=5?"atraso":"pend"}">${pendTxt(p)}</span></div><button class="chk" title="Cobrar pelo WhatsApp" onclick="event.stopPropagation();cobrar('${esc(p.id)}')">📲</button></div>`).join(""):'<div class="vazio">Nenhuma pendência. 🎉</div>'}
+function exportarCsv(){
+ const L=periodo().sort((a,b)=>a.criado.localeCompare(b.criado));if(!L.length)return alert("Não há dados neste período.");
+ const q=v=>{let t=String(v==null?"":v);if(/^[=+\-@\t\r]/.test(t))t="'"+t;return'"'+t.replace(/"/g,'""')+'"'};
+ const linhas=[["Data","Alunos","Categoria","Dia de vencimento","Observação","Valor","Status","Data do pagamento","Recebedor","Contato"]].concat(L.map(p=>[dt(p.criado),p.aluno,p.categoria||"",p.diaVenc||"",p.obs||"",fmt(p.valor),p.pago?"Pago":"Pendente",p.pagoEm?dt(p.pagoEm):"",p.recebedor||"",p.contato?"+"+normPhone(p.contato):""]));
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+linhas.map(r=>r.map(q).join(";")).join("\r\n")],{type:"text/csv;charset=utf-8"}));
+ a.download="autopix-relatorio-"+$("relMes").value+".csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+
+/* ---------- senha de acesso ---------- */
+const PW_SHA="7ecac58a0f3a0019c517526c7881eb40feb753d6cd0719ecccea8eb69f7644ff",PW_C="3636023511cca";
+function cyrb(s){let h1=0xdeadbeef,h2=0x41c6ce57;for(let i=0,ch;i<s.length;i++){ch=s.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677)}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return(4294967296*(2097151&h2)+(h1>>>0)).toString(16)}
+async function okSenha(v){if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")===PW_SHA}return cyrb(v)===PW_C}
+let falhas=0,bloq=0;
+async function destravar(){
+ const agora=Date.now();if(agora<bloq){$("lockErr").textContent="Aguarde "+Math.ceil((bloq-agora)/1000)+"s...";return}
+ if(await okSenha($("lockPin").value.trim())){falhas=0;try{sessionStorage.setItem("autopix_ok","1")}catch(e){}$("lock").classList.add("hidden");$("lockPin").value="";$("lockErr").textContent=""}
+ else{falhas++;$("lockPin").value="";if(falhas>=3){const w=15*(falhas-2);bloq=Date.now()+w*1000;$("lockErr").textContent="Senha incorreta. Aguarde "+w+"s."}else $("lockErr").textContent="Senha incorreta."}}
+function travar(){try{sessionStorage.removeItem("autopix_ok")}catch(e){}$("lock").classList.remove("hidden");$("lockPin").focus()}
+function iniciarLock(){let ok=false;try{ok=sessionStorage.getItem("autopix_ok")==="1"}catch(e){}if(ok||/^#p=/.test(location.hash))$("lock").classList.add("hidden");else $("lockPin").focus()}
+/* ---------- link de pagamento ---------- */
+function baseUrl(){const c=localStorage.getItem("autopix_url");if(c)return c;return /^https?:$/.test(location.protocol)?location.origin+location.pathname:""}
+function salvarUrl(){const v=$("cfgUrl").value.trim().split("#")[0];if(v&&!/^https:\/\/\S+$/.test(v))return alert("Use um endereço completo começando com https://");if(v)localStorage.setItem("autopix_url",v);else localStorage.removeItem("autopix_url");alert(v?"Endereço salvo!":"Endereço removido.")}
+function linkDe(p){const b=baseUrl();if(!b)return"";return b.split("#")[0]+"#p="+btoa(unescape(encodeURIComponent(JSON.stringify({c:p.code,a:p.aluno})))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+function pegaLink(){const p=get(atual);if(!p)return null;const l=linkDe(p);if(!l){alert("Para gerar links, hospede este arquivo em um site com https:// e informe o endereço na aba “Chaves Pix”, em “Link de pagamento”.");return null}return{p,l}}
+async function copiarLink(){const r=pegaLink();if(!r)return;try{await navigator.clipboard.writeText(r.l);alert("Link copiado!")}catch(e){prompt("Copie o link:",r.l)}}
+function enviarLink(){const r=pegaLink();if(!r)return;const t=`R$ ${fmt(r.p.valor)}   ${empresa(r.p)}\n*Enviar comprovante após pagamento*\nLink para pagar 👇\n${r.l}`;location.href="https://wa.me/"+(r.p.contato?normPhone(r.p.contato):"")+"?text="+encodeURIComponent(t)}
+function tlv(s){const o={};let i=0;while(i+4<=s.length){const t=s.substr(i,2),l=parseInt(s.substr(i+2,2),10);if(isNaN(l))break;o[t]=s.substr(i+4,l);i+=4+l}return o}
+let codigoP="";
+function pagadorView(){
+ const m=location.hash.match(/^#p=([\w-]+)/);if(!m)return;
+ try{
+  const d=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g,"+").replace(/_/g,"/"))))),code=String(d.c||"");
+  if(code.length>600||!/^[\x20-\x7E]+$/.test(code)||!code.startsWith("000201")||crc(code.slice(0,-4))!==code.slice(-4))throw 0;
+  const t=tlv(code);codigoP=code;
+  $("pgEmp").textContent=t["59"]||"Pix";$("pgVal").textContent=t["54"]?"R$ "+fmt(t["54"]):"Informe o valor combinado";$("pgAluno").textContent=String(d.a||"").slice(0,120);$("pgCode").textContent=code;
+  new QRCode($("qrcodeP"),{text:code,width:240,height:240,correctLevel:QRCode.CorrectLevel.M});
+ }catch(e){document.querySelectorAll("header,main:not(#pagador)").forEach(x=>x.classList.add("hidden"));$("pagador").classList.remove("hidden");$("pagador").innerHTML='<div class="card vazio">Link inválido ou incompleto. Peça um novo link.</div>';return}
+ document.querySelectorAll("header,main:not(#pagador)").forEach(x=>x.classList.add("hidden"));$("pagador").classList.remove("hidden")}
+async function copiarPagador(){try{await navigator.clipboard.writeText(codigoP);alert("Código Pix copiado! Abra o app do seu banco e use Pix Copia e Cola.")}catch(e){prompt("Copie o código:",codigoP)}}
+render();renderPags();pagadorView();iniciarLock();$("cfgUrl").value=localStorage.getItem("autopix_url")||"";
 </script></body></html>
