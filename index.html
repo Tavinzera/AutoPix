@@ -1,43 +1,192 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AutoPix</title>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>AutoPix</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7f6;color:#18312b}header{background:#087f5b;color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}.logo{font-size:24px;font-weight:800}nav button{border:0;background:transparent;color:#fff;padding:10px 14px;border-radius:8px;font-weight:bold;cursor:pointer}nav button.active,nav button:hover{background:#ffffff22}main{max-width:900px;margin:28px auto;padding:0 16px}.page{display:none}.page.active{display:block}.card{background:#fff;border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:0 3px 14px #0001}h1,h2{margin-top:0}label{display:block;font-weight:bold;margin:14px 0 6px}input,select{width:100%;padding:12px;border:1px solid #ccd8d4;border-radius:9px;font-size:16px}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}button.primary,button.secondary,button.danger{border:0;padding:12px 16px;border-radius:9px;font-weight:bold;cursor:pointer}button.primary{background:#087f5b;color:#fff}button.secondary{background:#e8f4f0;color:#087f5b}button.danger{background:#ffe9e9;color:#b42318}.key-item{border:1px solid #d9e4e0;border-radius:12px;padding:14px;margin-top:10px;display:flex;justify-content:space-between;gap:12px}.key-info strong{display:block}.key-info small{color:#64756f}.pix-code{background:#f3f6f5;padding:14px;border-radius:9px;word-break:break-all;font-family:monospace;font-size:13px}#qrcode{display:flex;justify-content:center;margin:20px 0}.hidden{display:none}.notice{padding:12px;background:#fff8db;border-radius:9px;margin-top:14px;color:#6b5700}@media(max-width:650px){.row{grid-template-columns:1fr}.key-item{flex-direction:column}}
+:root{--bg:#0b0f14;--card:#131a22;--card2:#1a2330;--line:#243142;--txt:#e6edf3;--mut:#8b9bab;--acc:#7c6cff;--acc2:#a99dff;--ok:#34d399;--warn:#fbbf24;--bad:#f87171}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,Arial,sans-serif;background:var(--bg);color:var(--txt)}
+header{background:#0e141b;border-bottom:1px solid var(--line);padding:12px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+.logo{font-size:21px;font-weight:800;letter-spacing:.3px}.logo span{color:var(--acc2)}
+nav{display:flex;gap:4px}nav button{border:0;background:transparent;color:var(--mut);padding:9px 13px;border-radius:9px;font-weight:700;cursor:pointer;font-size:14px}nav button.active{background:var(--card2);color:var(--txt)}
+main{max-width:820px;margin:22px auto;padding:0 14px 60px}.page{display:none}.page.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
+h1,h2,h3{margin:0 0 12px}h1{font-size:22px}h2{font-size:18px}
+label{display:block;font-weight:700;font-size:13px;color:var(--mut);margin:14px 0 6px}
+input,select{width:100%;padding:13px;background:#0e141b;color:var(--txt);border:1px solid var(--line);border-radius:10px;font-size:16px}
+input:focus,select:focus{outline:2px solid var(--acc);border-color:transparent}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+button.primary,button.secondary,button.danger,button.ok{border:0;padding:12px 16px;border-radius:10px;font-weight:700;cursor:pointer;font-size:15px}
+button.primary{background:var(--acc);color:#fff}button.secondary{background:var(--card2);color:var(--txt);border:1px solid var(--line)}button.danger{background:#3a1d22;color:var(--bad)}button.ok{background:#12372b;color:var(--ok)}
+button.big{width:100%;padding:16px;font-size:17px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}.stat small{color:var(--mut);font-weight:700}.stat b{display:block;font-size:22px;margin-top:4px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.tools input{flex:1;min-width:150px}
+.tabs{display:flex;gap:6px}.tabs button{border:1px solid var(--line);background:transparent;color:var(--mut);padding:10px 13px;border-radius:10px;font-weight:700;cursor:pointer}.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.pg{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer}.pg:hover{border-color:var(--acc)}
+.pg-main{flex:1;min-width:0}.pg-main strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pg-main small{color:var(--mut)}
+.pg-side{text-align:right}.pg-side b{display:block;font-size:17px;margin-bottom:4px}
+.badge{font-size:12px;font-weight:800;padding:4px 9px;border-radius:99px}.badge.pend{background:#3a2f0d;color:var(--warn)}.badge.pago{background:#12372b;color:var(--ok)}
+.chk{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);background:transparent;color:var(--mut);font-size:18px;cursor:pointer;flex:none}.chk.on{background:var(--ok);border-color:var(--ok);color:#06291d}
+.vazio{text-align:center;color:var(--mut);padding:28px}
+.key-item{border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:14px;margin-top:10px;display:flex;justify-content:space-between;gap:12px;align-items:center}.key-info strong{display:block}.key-info small{color:var(--mut)}
+.pix-code{background:#0e141b;border:1px solid var(--line);padding:12px;border-radius:10px;word-break:break-all;font-family:monospace;font-size:12.5px;color:var(--acc2)}
+#qrcode{display:flex;justify-content:center;margin:14px 0}#qrcode canvas,#qrcode img{background:#fff;padding:10px;border-radius:12px;max-width:100%;height:auto}
+.hint{font-size:12.5px;color:var(--mut);margin-top:5px}.hidden{display:none}
+dialog{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:18px;padding:20px;width:min(480px,94vw);max-height:92vh}dialog::backdrop{background:#000b}
+.dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.x{background:none;border:0;color:var(--mut);font-size:24px;cursor:pointer}
+.info{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px;margin:10px 0}.info span{color:var(--mut)}.arow{display:grid;grid-template-columns:1fr 110px 34px;gap:8px;margin-bottom:8px;align-items:center}.arow input{padding:11px}.arow .x{padding:0}
+@media(max-width:560px){.row{grid-template-columns:1fr}.key-item{flex-direction:column;align-items:stretch}}
 </style></head><body>
-<header><div class="logo">💚 AutoPix</div><nav><button id="navInicio" class="active" onclick="showPage('inicio')">Início</button><button id="navCadastro" onclick="showPage('cadastro')">Cadastro</button></nav></header>
+<header><div class="logo">Auto<span>Pix</span></div><nav><button id="navInicio" class="active" onclick="showPage('inicio')">Pagamentos</button><button id="navCadastro" onclick="showPage('cadastro')">Chaves Pix</button></nav></header>
 <main>
-<section id="inicio" class="page active"><div class="card"><h1>Pagamento Pix</h1><p>Selecione uma chave cadastrada e informe o valor.</p>
-<label>Chave Pix</label><select id="keySelect"></select><label>Valor (opcional)</label><input id="valor" inputmode="decimal" placeholder="Ex.: 50,00">
-<div class="actions"><button class="primary" onclick="gerarPix()">Gerar Pix</button><button class="secondary" onclick="showPage('cadastro')">⚙️ Cadastrar chave</button></div></div>
-<div id="resultado" class="card hidden"><h2>Pagamento</h2><p id="destinatario"></p><div id="qrcode"></div><label>Pix Copia e Cola</label><div id="pixCode" class="pix-code"></div>
-<div class="actions"><button class="secondary" onclick="copiarPix()">📋 Copiar Pix</button><button class="primary" onclick="compartilharWhatsApp()">📲 Preparar WhatsApp</button></div>
-<div class="notice">No celular, o botão tenta abrir o compartilhamento com o QR Code como imagem e o texto pronto. Se o navegador não permitir anexar a imagem, ele abre o WhatsApp com o texto pronto.</div></div></section>
-<section id="cadastro" class="page"><div class="card"><h1>Cadastro de chaves</h1><p>Cidade fixa: <strong>Itumbiara - GO</strong></p><input type="hidden" id="editId">
-<label>Identificação</label><input id="identificacao" placeholder="Ex.: Loja, Empresa, João">
-<div class="row"><div><label>Tipo de chave</label><select id="tipo"><option value="CPF">CPF</option><option value="CNPJ">CNPJ</option><option value="EMAIL">E-mail</option><option value="PHONE">Celular</option><option value="EVP">Chave aleatória</option></select></div><div><label>Nome que aparece no Pix</label><input id="nomePix" placeholder="Nome do recebedor"></div></div>
-<label>Chave Pix</label><input id="chave" placeholder="Digite a chave Pix">
-<div class="actions"><button class="primary" onclick="salvarChave()">💾 Salvar chave</button><button class="secondary" onclick="limparFormulario()">Limpar</button></div></div>
-<div class="card"><h2>Minhas chaves</h2><div id="listaChaves"></div></div></section></main>
+<section id="inicio" class="page active">
+ <button class="primary big" onclick="novo()">＋ Gerar pagamento</button>
+ <div class="stats"><div class="stat"><small>A RECEBER</small><b id="stPend" style="color:var(--warn)">R$ 0,00</b></div><div class="stat"><small>RECEBIDO</small><b id="stPago" style="color:var(--ok)">R$ 0,00</b></div></div>
+ <div class="tools"><input id="busca" placeholder="🔎 Buscar aluno..." oninput="renderPags()"><div class="tabs" id="tabs"><button data-f="todos" class="on">Todos</button><button data-f="pend">Pendentes</button><button data-f="pago">Pagos</button></div></div>
+ <div id="listaPags"></div>
+</section>
+<section id="cadastro" class="page">
+ <div class="card"><h1>Cadastro de chaves</h1><p style="color:var(--mut)">Cidade fixa: <strong>Itumbiara - GO</strong></p><input type="hidden" id="editId">
+ <label>Identificação</label><input id="identificacao" placeholder="Ex.: Loja, Empresa, João">
+ <div class="row"><div><label>Tipo de chave</label><select id="tipo"><option value="CPF">CPF</option><option value="CNPJ">CNPJ</option><option value="EMAIL">E-mail</option><option value="PHONE">Celular</option><option value="EVP">Chave aleatória</option></select></div><div><label>Nome que aparece no Pix</label><input id="nomePix" maxlength="25" placeholder="Nome do recebedor"><div class="hint">Máx. 25 caracteres. Acentos são removidos.</div></div></div>
+ <label>Chave Pix</label><input id="chave" placeholder="Digite a chave Pix">
+ <div class="actions"><button class="primary" onclick="salvarChave()">💾 Salvar chave</button><button class="secondary" onclick="limparFormulario()">Limpar</button></div></div>
+ <div class="card"><h2>Minhas chaves</h2><div id="listaChaves"></div>
+ <div class="actions"><button class="secondary" onclick="exportar()">⬇️ Exportar backup</button><button class="secondary" onclick="$('arquivo').click()">⬆️ Importar backup</button><input type="file" id="arquivo" accept=".json,application/json" class="hidden" onchange="importar(this)"></div>
+ <div class="hint">Os dados ficam só neste navegador. O backup inclui chaves e pagamentos. Exporte de vez em quando.</div></div>
+</section></main>
+
+<dialog id="dNovo"><div class="dh"><h2>Gerar pagamento</h2><button class="x" onclick="$('dNovo').close()">×</button></div>
+ <label>Alunos</label><div id="nAlunos"></div>
+ <button class="secondary" type="button" onclick="addAluno()">＋ Adicionar aluno</button>
+ <div class="info"><span>Total do Pix</span><b id="nTotal">R$ 0,00</b></div>
+ <div class="row"><div><label>Categoria</label><select id="nCat" onchange="catChange()"><option value="Mensalidade">Mensalidade</option><option value="Outros">Outros</option></select></div><div id="nDiaBox"><label>Dia do vencimento</label><select id="nDia"><option value="5">Dia 5</option><option value="10">Dia 10</option><option value="15">Dia 15</option><option value="20">Dia 20</option><option value="25">Dia 25</option><option value="30">Dia 30</option></select></div></div>
+ <label>Observação (opcional)</label><input id="nObs" maxlength="200" placeholder="Ex.: Mensalidade de outubro">
+ <div class="row"><div><label>Contato (WhatsApp)</label><input id="nContato" inputmode="tel" placeholder="(64) 99999-9999"></div><div><label>Qual Pix usar</label><select id="nChave"></select></div></div>
+ <div class="actions"><button class="primary" style="flex:1" onclick="criar()">Gerar Pix</button><button class="secondary" onclick="$('dNovo').close()">Cancelar</button></div></dialog>
+
+<dialog id="dDet"><div class="dh"><h2 id="dAluno"></h2><button class="x" onclick="$('dDet').close()">×</button></div>
+ <div class="info"><span>Valor</span><b id="dValor"></b><span>Gerado em</span><div id="dData"></div><span>Alunos</span><div id="dAlunos"></div><span>Recebedor</span><div id="dRec"></div><span>Categoria</span><div id="dCat"></div><span>Obs.</span><div id="dObs"></div><span>Contato</span><div id="dCont"></div><span>Status</span><div id="dStatus"></div></div>
+ <div id="qrcode"></div>
+ <label>Pix Copia e Cola</label><div id="pixCode" class="pix-code"></div>
+ <div class="actions"><button class="secondary" onclick="copiarPix()">📋 Copiar mensagem</button><button class="secondary" onclick="copiarCodigo()">📋 Só o código</button><button class="primary" onclick="enviarWpp()">📲 WhatsApp</button><button class="secondary" onclick="compartilhar()">🖼️ Enviar com QR</button></div>
+ <div class="actions"><button id="bPago" onclick="alternarPago(atual)" style="flex:1"></button><button class="danger" onclick="excluirPag()">🗑️</button></div></dialog>
+
 <script>
-const STORAGE_KEY="autopix_chaves_v3",CIDADE="ITUMBIARA",UF="GO";let chaves=load();
-function load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]")}catch(e){return[]}}
-function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(chaves));return true}catch(e){alert("O navegador não permitiu salvar. Se estiver usando arquivo local, prefira abrir esta página por HTTPS.");return false}}
-function showPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(p).classList.add("active");navInicio.classList.toggle("active",p==="inicio");navCadastro.classList.toggle("active",p==="cadastro");if(p==="inicio")updateSelect();else render();scrollTo({top:0,behavior:"smooth"})}
-function norm(t,v){v=v.trim();return ["CPF","CNPJ","PHONE"].includes(t)?v.replace(/\D/g,""):v}
-function validate(t,k){if(!k)return"Informe a chave Pix.";if(t==="CPF"&&k.length!==11)return"CPF deve ter 11 dígitos.";if(t==="CNPJ"&&k.length!==14)return"CNPJ deve ter 14 dígitos.";if(t==="PHONE"&&k.length<10)return"Celular inválido.";if(t==="EMAIL"&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(k))return"E-mail inválido.";return""}
-function salvarChave(){let id=editId.value,ident=identificacao.value.trim(),tipoV=tipo.value,nome=nomePix.value.trim(),key=norm(tipoV,chave.value);if(!ident||!nome)return alert("Preencha a identificação e o nome que aparece no Pix.");let er=validate(tipoV,key);if(er)return alert(er);let r={id:id||String(Date.now()),identificacao:ident,tipo:tipoV,nomePix:nome,chave:key,cidade:CIDADE,uf:UF};if(id){let i=chaves.findIndex(x=>x.id===id);if(i>=0)chaves[i]=r}else chaves.push(r);if(save()){limparFormulario();render();updateSelect();alert("Chave salva com sucesso!")}}
-function editar(id){let c=chaves.find(x=>x.id===id);if(!c)return;editId.value=c.id;identificacao.value=c.identificacao;tipo.value=c.tipo;nomePix.value=c.nomePix;chave.value=c.chave;showPage("cadastro")}
-function excluir(id){if(!confirm("Excluir esta chave Pix?"))return;chaves=chaves.filter(x=>x.id!==id);save();render();updateSelect()}
-function limparFormulario(){editId.value="";identificacao.value="";tipo.value="CPF";nomePix.value="";chave.value=""}
-function mask(c){if(c.tipo==="CPF"&&c.chave.length===11)return c.chave.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,"$1.$2.$3-$4");if(c.tipo==="CNPJ"&&c.chave.length===14)return c.chave.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,"$1.$2.$3/$4-$5");return c.chave}
-function render(){listaChaves.innerHTML=chaves.length?chaves.map(c=>`<div class="key-item"><div class="key-info"><strong>${esc(c.identificacao)}</strong><small>${esc(c.tipo)} · ${esc(c.nomePix)} · ${esc(mask(c))}</small></div><div class="actions"><button class="secondary" onclick="editar('${c.id}')">Editar</button><button class="danger" onclick="excluir('${c.id}')">Excluir</button></div></div>`).join(""):"<p>Nenhuma chave cadastrada.</p>"}
-function updateSelect(){keySelect.innerHTML=chaves.length?chaves.map(c=>`<option value="${c.id}">${esc(c.identificacao)} — ${esc(c.tipo)} — ${esc(c.nomePix)}</option>`).join(""):"<option value=''>Nenhuma chave cadastrada</option>"}
-function val(v){v=(v||"").trim().replace(",","."),n=Number(v);return v&&isFinite(n)&&n>0?n.toFixed(2):""}
+const K_CH="autopix_chaves_v3",K_PG="autopix_pagamentos_v1",CIDADE="ITUMBIARA",UF="GO",TIPOS=["CPF","CNPJ","EMAIL","PHONE","EVP"];
+const $=id=>document.getElementById(id);
+function load(k){try{const a=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(a)?a:[]}catch(e){return[]}}
+let chaves=load(K_CH),pags=load(K_PG),filtro="todos",atual=null;
+function save(){try{localStorage.setItem(K_CH,JSON.stringify(chaves));localStorage.setItem(K_PG,JSON.stringify(pags));return true}catch(e){alert("O navegador não permitiu salvar os dados.");return false}}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function newId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function fmt(v){return Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function dt(s){return new Date(s).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"})}
+function showPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(p).classList.add("active");$("navInicio").classList.toggle("active",p==="inicio");$("navCadastro").classList.toggle("active",p==="cadastro");if(p==="inicio")renderPags();else render();scrollTo({top:0})}
+
+/* ---------- validação ---------- */
+function normPhone(v){const d=String(v).replace(/\D/g,"");return d.length>=12&&d.startsWith("55")?d:"55"+d}
+function norm(t,v){v=v.trim();if(t==="CPF"||t==="CNPJ")return v.replace(/\D/g,"");if(t==="PHONE")return normPhone(v);if(t==="EMAIL"||t==="EVP")return v.toLowerCase();return v}
+function cpfOk(s){if(!/^\d{11}$/.test(s)||/^(\d)\1+$/.test(s))return false;for(let t=9;t<11;t++){let d=0;for(let i=0;i<t;i++)d+=s[i]*(t+1-i);d=(d*10)%11%10;if(d!=s[t])return false}return true}
+function cnpjOk(s){if(!/^\d{14}$/.test(s)||/^(\d)\1+$/.test(s))return false;for(let t=12;t<14;t++){let d=0,p=t-7;for(let i=0;i<t;i++){d+=s[i]*p--;if(p<2)p=9}d=d%11<2?0:11-d%11;if(d!=s[t])return false}return true}
+function validate(t,k){if(!k)return"Informe a chave Pix.";if(t==="CPF"&&!cpfOk(k))return"CPF inválido (confira os dígitos).";if(t==="CNPJ"&&!cnpjOk(k))return"CNPJ inválido (confira os dígitos).";if(t==="PHONE"&&!/^55\d{10,11}$/.test(k))return"Celular inválido. Use DDD + número.";if(t==="EMAIL"&&(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(k)||k.length>77))return"E-mail inválido.";if(t==="EVP"&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(k))return"Chave aleatória inválida (formato 8-4-4-4-12).";return""}
+function pixKey(c){return c.tipo==="PHONE"?"+"+normPhone(c.chave):c.chave}
+function ascii(s){return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^\x20-\x7E]/g,"").toUpperCase().replace(/\s+/g," ").trim()}
+function parseValor(v){v=(v||"").trim().replace(/R\$|\s/g,"");if(!v)return"";if(v.includes(","))v=v.replace(/\./g,"").replace(",",".");else if(/^\d{1,3}(\.\d{3})+$/.test(v))v=v.replace(/\./g,"");if(!/^\d+(\.\d{1,2})?$/.test(v))return null;const n=Number(v);return n>0&&n<=9999999999.99?n.toFixed(2):null}
+
+/* ---------- BR Code ---------- */
 function crc(s){let c=0xFFFF;for(let i=0;i<s.length;i++){c^=s.charCodeAt(i)<<8;for(let j=0;j<8;j++)c=c&0x8000?((c<<1)^0x1021)&0xFFFF:(c<<1)&0xFFFF}return c.toString(16).toUpperCase().padStart(4,"0")}
 function f(id,v){return id+String(v.length).padStart(2,"0")+v}
-function payload(k,n,c,v){let m=f("00","br.gov.bcb.pix")+f("01",k),p=f("00","01")+f("26",m)+f("52","0000")+f("53","986");if(v)p+=f("54",v);p+=f("58","BR")+f("59",n.substring(0,25))+f("60",c.substring(0,15))+f("62",f("05","***"));return p+"6304"+crc(p+"6304")}
-function gerarPix(){let c=chaves.find(x=>x.id===keySelect.value);if(!c)return alert("Cadastre uma chave primeiro.");let v=val(valor.value),code=payload(c.chave,c.nomePix,c.cidade,v);destinatario.innerHTML="<strong>"+esc(c.nomePix)+"</strong> · "+esc(c.identificacao)+" · "+c.cidade+"-"+c.uf;pixCode.textContent=code;qrcode.innerHTML="";new QRCode(qrcode,{text:code,width:160,height:160,correctLevel:QRCode.CorrectLevel.L});resultado.classList.remove("hidden")}
-async function copiarPix(){try{await navigator.clipboard.writeText(pixCode.textContent);alert("Pix Copia e Cola copiado!")}catch(e){alert("Não foi possível copiar automaticamente.")}}
-async function compartilharWhatsApp(){let code=pixCode.textContent,v=valor.value.trim(),texto=`💚 PAGAMENTO PIX\n\n💰 Valor: ${v?"R$ "+Number(v.replace(",","." )).toFixed(2).replace(".",","):"Não informado"}\n\n📋 PIX COPIA E COLA\n${code}`,canvas=document.querySelector("#qrcode canvas");if(canvas&&navigator.share&&navigator.canShare){try{let blob=await new Promise(r=>canvas.toBlob(r,"image/png")),file=new File([blob],"qrcode-pix.png",{type:"image/png"});if(navigator.canShare({files:[file]})){await navigator.share({title:"Pagamento Pix",text:texto,files:[file]});return}}catch(e){if(e.name==="AbortError")return}}location.href="https://wa.me/?text="+encodeURIComponent(texto)}
-function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-updateSelect();render();
+function payload(k,n,c,v,tx){const m=f("00","br.gov.bcb.pix")+f("01",k);let p=f("00","01")+f("01","11")+f("26",m)+f("52","0000")+f("53","986");if(v)p+=f("54",v);p+=f("58","BR")+f("59",ascii(n).substring(0,25).trim())+f("60",ascii(c).substring(0,15).trim())+f("62",f("05",tx||"***"));return p+"6304"+crc(p+"6304")}
+
+/* ---------- pagamentos ---------- */
+function novo(){
+ if(!chaves.length){alert("Cadastre uma chave Pix primeiro.");return showPage("cadastro")}
+ $("nChave").innerHTML=chaves.map(c=>`<option value="${esc(c.id)}">${esc(c.identificacao)} — ${esc(c.tipo)}</option>`).join("");
+ $("nAlunos").innerHTML="";addAluno();$("nContato").value="";$("nObs").value="";$("nCat").value="Mensalidade";$("nDia").value="5";catChange();totalNovo();$("dNovo").showModal();$("nAlunos").querySelector(".an").focus()}
+function catChange(){$("nDiaBox").classList.toggle("hidden",$("nCat").value!=="Mensalidade")}
+function addAluno(){const d=document.createElement("div");d.className="arow";d.innerHTML='<input class="an" placeholder="Nome do aluno" autocomplete="off"><input class="av" inputmode="decimal" placeholder="Valor" oninput="totalNovo()"><button class="x" type="button" title="Remover" onclick="rmAluno(this)">×</button>';$("nAlunos").appendChild(d);if($("dNovo").open)d.querySelector(".an").focus()}
+function rmAluno(b){if($("nAlunos").children.length>1){b.parentNode.remove();totalNovo()}}
+function totalNovo(){let t=0;document.querySelectorAll("#nAlunos .av").forEach(i=>{const v=parseValor(i.value);if(v)t+=Math.round(Number(v)*100)});$("nTotal").textContent="R$ "+fmt(t/100)}
+function criar(){
+ const alunos=[],c=chaves.find(x=>x.id===$("nChave").value),ct=$("nContato").value.replace(/\D/g,"");let cents=0;
+ for(const r of document.querySelectorAll("#nAlunos .arow")){
+  const n=r.querySelector(".an").value.trim(),raw=r.querySelector(".av").value,v=parseValor(raw);
+  if(!n&&!raw.trim())continue;
+  if(!n)return alert("Informe o nome do aluno.");
+  if(!v)return alert("Valor inválido para "+n+". Use por exemplo 150,00 ou 1.000,50.");
+  alunos.push({nome:n,valor:v});cents+=Math.round(Number(v)*100)}
+ if(!alunos.length)return alert("Adicione pelo menos um aluno com valor.");
+ if(!c)return alert("Escolha uma chave Pix.");
+ if(ct&&(ct.length<10||ct.length>13))return alert("Contato inválido. Use DDD + número.");
+ const total=(cents/100).toFixed(2);if(cents>999999999999)return alert("Valor total muito alto.");
+ const id=newId(),tx=("AP"+Date.now().toString(36)).toUpperCase().slice(0,25);
+ pags.push({id,aluno:alunos.map(a=>a.nome).join(", "),alunos,obs:$("nObs").value.trim().slice(0,200),categoria:$("nCat").value==="Mensalidade"?"Mensalidade":"Outros",diaVenc:$("nCat").value==="Mensalidade"?Number($("nDia").value):null,contato:ct,valor:total,criado:new Date().toISOString(),pago:false,pagoEm:null,empresa:c.nomePix,recebedor:ascii(c.nomePix)+" · "+c.identificacao,code:payload(pixKey(c),c.nomePix,c.cidade,total,tx)});
+ if(!save()){pags.pop();return}
+ $("dNovo").close();renderPags();abrir(id)}
+function renderPags(){
+ const q=ascii($("busca").value),lista=pags.filter(p=>(filtro==="todos"||(filtro==="pago")===p.pago)&&(!q||ascii(p.aluno).includes(q))).sort((a,b)=>b.criado.localeCompare(a.criado));
+ $("listaPags").innerHTML=lista.length?lista.map(p=>`<div class="pg" onclick="abrir('${esc(p.id)}')"><button class="chk ${p.pago?"on":""}" title="${p.pago?"Desmarcar pago":"Marcar como pago"}" onclick="event.stopPropagation();alternarPago('${esc(p.id)}')">✓</button><div class="pg-main"><strong>${esc(p.aluno)}</strong><small>${catTxt(p)?esc(catTxt(p))+" · ":""}${dt(p.criado)}${p.obs?" · "+esc(p.obs):""}</small></div><div class="pg-side"><b>R$ ${fmt(p.valor)}</b><span class="badge ${p.pago?"pago":"pend"}">${p.pago?"Pago":"Pendente"}</span></div></div>`).join(""):`<div class="vazio">${pags.length?"Nenhum pagamento encontrado.":"Nenhum pagamento gerado ainda.<br>Toque em “Gerar pagamento” para começar."}</div>`;
+ const soma=b=>pags.filter(p=>p.pago===b).reduce((s,p)=>s+Number(p.valor),0);
+ $("stPend").textContent="R$ "+fmt(soma(false));$("stPago").textContent="R$ "+fmt(soma(true))}
+$("tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;filtro=b.dataset.f;document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));renderPags()};
+function get(id){return pags.find(p=>p.id===id)}
+function abrir(id){
+ const p=get(id);if(!p)return;atual=id;
+ $("dAluno").textContent=p.aluno;$("dValor").textContent="R$ "+fmt(p.valor);$("dData").textContent=dt(p.criado);$("dRec").textContent=p.recebedor;$("dAlunos").innerHTML=(p.alunos&&p.alunos.length?p.alunos:[{nome:p.aluno,valor:p.valor}]).map(a=>esc(a.nome)+" — R$ "+fmt(a.valor)).join("<br>");$("dObs").textContent=p.obs||"—";$("dCat").textContent=catTxt(p)||"—";
+ $("dCont").textContent=p.contato?"+"+normPhone(p.contato):"Não informado";$("pixCode").textContent=p.code;
+ $("qrcode").innerHTML="";new QRCode($("qrcode"),{text:p.code,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});
+ statusDet();if(!$("dDet").open)$("dDet").showModal()}
+function statusDet(){
+ const p=get(atual);if(!p)return;
+ $("dStatus").innerHTML=p.pago?`<span class="badge pago">Pago em ${dt(p.pagoEm)}</span>`:`<span class="badge pend">Pendente</span>`;
+ const b=$("bPago");b.className=p.pago?"secondary":"ok";b.textContent=p.pago?"↩ Desmarcar como pago":"✓ Marcar como pago"}
+function alternarPago(id){const p=get(id);if(!p)return;p.pago=!p.pago;p.pagoEm=p.pago?new Date().toISOString():null;save();renderPags();if($("dDet").open&&atual===id)statusDet()}
+function excluirPag(){if(!confirm("Excluir este pagamento?"))return;pags=pags.filter(p=>p.id!==atual);save();$("dDet").close();renderPags()}
+async function copiarPix(){const p=get(atual);if(!p)return;try{await navigator.clipboard.writeText(texto(p));alert("Mensagem copiada!")}catch(e){alert("Não foi possível copiar automaticamente.")}}
+async function copiarCodigo(){const p=get(atual);if(!p)return;try{await navigator.clipboard.writeText(p.code);alert("Código Pix copiado!")}catch(e){alert("Não foi possível copiar automaticamente.")}}
+function catTxt(p){return p.categoria==="Mensalidade"?"Mensalidade · dia "+p.diaVenc:(p.categoria||"")}
+function empresa(p){return p.empresa||String(p.recebedor||"").split(" · ")[0]}
+function texto(p){return `R$ ${fmt(p.valor)}   ${empresa(p)}\n*Enviar comprovante após pagamento*\nPix copia e cola 👇\n${p.code}`}
+function enviarWpp(){const p=get(atual);if(!p)return;location.href="https://wa.me/"+(p.contato?normPhone(p.contato):"")+"?text="+encodeURIComponent(texto(p))}
+async function compartilhar(){
+ const p=get(atual);if(!p)return;const canvas=document.querySelector("#qrcode canvas");
+ if(canvas&&navigator.share&&navigator.canShare){try{const blob=await new Promise(r=>canvas.toBlob(r,"image/png")),file=new File([blob],"qrcode-pix.png",{type:"image/png"});if(navigator.canShare({files:[file]})){await navigator.share({title:"Pagamento Pix",text:texto(p),files:[file]});return}}catch(e){if(e.name==="AbortError")return}}
+ enviarWpp()}
+
+/* ---------- chaves ---------- */
+function salvarChave(){
+ const id=$("editId").value,ident=$("identificacao").value.trim(),t=$("tipo").value,nome=$("nomePix").value.trim(),key=norm(t,$("chave").value);
+ if(!ident||!nome)return alert("Preencha a identificação e o nome que aparece no Pix.");
+ if(!ascii(nome))return alert("O nome do recebedor precisa ter letras ou números.");
+ if(nome.length>25&&!confirm("O nome será cortado para: "+ascii(nome).substring(0,25)+"\nContinuar?"))return;
+ const er=validate(t,key);if(er)return alert(er);
+ const r={id:id||newId(),identificacao:ident,tipo:t,nomePix:nome,chave:key,cidade:CIDADE,uf:UF};
+ if(id){const i=chaves.findIndex(x=>x.id===id);if(i>=0)chaves[i]=r}else chaves.push(r);
+ if(save()){limparFormulario();render();alert("Chave salva com sucesso!")}}
+function editar(id){const c=chaves.find(x=>x.id===id);if(!c)return;$("editId").value=c.id;$("identificacao").value=c.identificacao;$("tipo").value=c.tipo;$("nomePix").value=c.nomePix;$("chave").value=c.chave;scrollTo({top:0,behavior:"smooth"})}
+function excluir(id){if(!confirm("Excluir esta chave Pix? Os pagamentos já gerados não são afetados."))return;chaves=chaves.filter(x=>x.id!==id);save();render()}
+function limparFormulario(){$("editId").value="";$("identificacao").value="";$("tipo").value="CPF";$("nomePix").value="";$("chave").value=""}
+function mask(c){if(c.tipo==="CPF"&&c.chave.length===11)return c.chave.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,"$1.$2.$3-$4");if(c.tipo==="CNPJ"&&c.chave.length===14)return c.chave.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,"$1.$2.$3/$4-$5");if(c.tipo==="PHONE")return"+"+normPhone(c.chave);return c.chave}
+function render(){$("listaChaves").innerHTML=chaves.length?chaves.map(c=>`<div class="key-item"><div class="key-info"><strong>${esc(c.identificacao)}</strong><small>${esc(c.tipo)} · ${esc(c.nomePix)} · ${esc(mask(c))}</small></div><div class="actions" style="margin:0"><button class="secondary" onclick="editar('${esc(c.id)}')">Editar</button><button class="danger" onclick="excluir('${esc(c.id)}')">Excluir</button></div></div>`).join(""):"<p style='color:var(--mut)'>Nenhuma chave cadastrada.</p>"}
+
+/* ---------- backup ---------- */
+function exportar(){
+ if(!chaves.length&&!pags.length)return alert("Não há dados para exportar.");
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({chaves,pagamentos:pags},null,2)],{type:"application/json"}));
+ a.download="autopix-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function importar(inp){
+ const file=inp.files[0];if(!file)return;const rd=new FileReader();
+ rd.onload=()=>{try{
+  const d=JSON.parse(rd.result),ac=Array.isArray(d)?d:d.chaves,ap=Array.isArray(d)?[]:d.pagamentos;let nc=0,np=0;
+  (Array.isArray(ac)?ac:[]).forEach(x=>{
+   if(!x||!TIPOS.includes(x.tipo)||typeof x.chave!=="string"||typeof x.nomePix!=="string"||typeof x.identificacao!=="string")return;
+   const k=norm(x.tipo,x.chave);if(validate(x.tipo,k)||chaves.some(c=>c.tipo===x.tipo&&c.chave===k&&c.nomePix===x.nomePix))return;
+   chaves.push({id:newId(),identificacao:x.identificacao.slice(0,60),tipo:x.tipo,nomePix:x.nomePix.slice(0,60),chave:k,cidade:CIDADE,uf:UF});nc++});
+  (Array.isArray(ap)?ap:[]).forEach(x=>{
+   if(!x||typeof x.aluno!=="string"||typeof x.code!=="string"||typeof x.criado!=="string"||isNaN(new Date(x.criado)))return;
+   const v=parseValor(String(x.valor));if(!v)return;
+   if(pags.some(p=>p.code===x.code&&p.criado===x.criado))return;
+   pags.push({id:newId(),aluno:x.aluno.slice(0,80),contato:String(x.contato||"").replace(/\D/g,"").slice(0,13),valor:v,criado:new Date(x.criado).toISOString(),pago:!!x.pago,pagoEm:x.pago&&x.pagoEm&&!isNaN(new Date(x.pagoEm))?new Date(x.pagoEm).toISOString():null,recebedor:String(x.recebedor||"").slice(0,80),empresa:String(x.empresa||"").slice(0,60),categoria:x.categoria==="Mensalidade"?"Mensalidade":(x.categoria==="Outros"?"Outros":undefined),diaVenc:x.categoria==="Mensalidade"&&[5,10,15,20,25,30].includes(Number(x.diaVenc))?Number(x.diaVenc):null,obs:String(x.obs||"").slice(0,200),alunos:Array.isArray(x.alunos)?x.alunos.slice(0,30).map(a=>({nome:String(a&&a.nome||"").slice(0,80),valor:parseValor(String(a&&a.valor))||"0.00"})):undefined,code:x.code.slice(0,600)});np++});
+  if(nc||np)save();render();renderPags();alert(nc+" chave(s) e "+np+" pagamento(s) importados.")
+ }catch(e){alert("Arquivo inválido.")}inp.value=""};
+ rd.readAsText(file)}
+render();renderPags();
 </script></body></html>
