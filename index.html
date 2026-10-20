@@ -75,7 +75,7 @@ dialog{background:var(--card);color:var(--txt);border:1px solid var(--line);bord
  <div class="actions"><button class="primary" style="flex:1" onclick="criar()">Gerar Pix</button><button class="secondary" onclick="$('dNovo').close()">Cancelar</button></div></dialog>
 
 <dialog id="dDet"><div class="dh"><h2 id="dAluno"></h2><button class="x" onclick="$('dDet').close()">×</button></div>
- <div class="info"><span>Valor</span><b id="dValor"></b><span>Gerado em</span><div id="dData"></div><span>Alunos</span><div id="dAlunos"></div><span>Recebedor</span><div id="dRec"></div><span>Categoria</span><div id="dCat"></div><span>Obs.</span><div id="dObs"></div><span>Contato</span><div id="dCont"></div><span>Status</span><div id="dStatus"></div></div>
+ <div class="info"><span>Valor</span><b id="dValor"></b><span>Gerado em</span><div id="dData"></div><span>Alunos</span><div id="dAlunos"></div><span>Recebedor</span><div id="dRec"></div><span>Categoria</span><div id="dCat"></div><span>Obs.</span><div id="dObs"></div><span>Contato</span><div id="dCont"></div><span>Status</span><div id="dStatus"></div><span>Data do pagamento</span><div><input id="pagoData" type="date" aria-label="Data do pagamento"><button class="secondary" type="button" onclick="salvarDataPago()" style="margin-top:6px;width:100%">Salvar data do pagamento</button></div></div>
  <div id="qrcode"></div>
  <label>Pix Copia e Cola</label><div id="pixCode" class="pix-code"></div>
  <div class="actions"><button class="secondary" onclick="copiarPix()">📋 Copiar mensagem</button><button class="secondary" onclick="copiarCodigo()">📋 Só o código</button><button class="primary" onclick="enviarWpp()">📲 WhatsApp</button><button class="secondary" onclick="compartilhar()">🖼️ Enviar com QR</button></div>
@@ -136,7 +136,7 @@ function criar(){
  $("dNovo").close();renderPags();abrir(id)}
 function renderPags(){
  const q=ascii($("busca").value),lista=pags.filter(p=>(filtro==="todos"||(filtro==="pago")===p.pago)&&(!q||ascii(p.aluno).includes(q))).sort((a,b)=>filtro==="pend"?a.criado.localeCompare(b.criado):b.criado.localeCompare(a.criado));
- $("listaPags").innerHTML=lista.length?lista.map(p=>`<div class="pg" onclick="abrir('${esc(p.id)}')"><button class="chk ${p.pago?"on":""}" title="${p.pago?"Desmarcar pago":"Marcar como pago"}" onclick="event.stopPropagation();alternarPago('${esc(p.id)}')">✓</button><div class="pg-main"><strong>${esc(p.aluno)}</strong><small>${catTxt(p)?esc(catTxt(p))+" · ":""}${dt(p.criado)}${p.obs?" · "+esc(p.obs):""}</small></div><div class="pg-side"><b>R$ ${fmt(p.valor)}</b><span class="badge ${p.pago?"pago":diasPend(p)>=5?"atraso":"pend"}">${p.pago?"Pago":pendTxt(p)}</span></div>${p.pago?"":`<button class="chk" title="Cobrar pelo WhatsApp" onclick="event.stopPropagation();cobrar('${esc(p.id)}')">📲</button>`}</div>`).join(""):`<div class="vazio">${pags.length?"Nenhum pagamento encontrado.":"Nenhum pagamento gerado ainda.<br>Toque em “Gerar pagamento” para começar."}</div>`;
+ $("listaPags").innerHTML=lista.length?lista.map(p=>`<div class="pg" onclick="abrir('${esc(p.id)}')"><button class="chk ${p.pago?"on":""}" title="${p.pago?"Desmarcar pago":"Marcar como pago"}" onclick="event.stopPropagation();alternarPago('${esc(p.id)}')">✓</button><div class="pg-main"><strong>${esc(p.aluno)}</strong><small>${catTxt(p)?esc(catTxt(p))+" · ":""}${dt(p.criado)}${p.obs?" · "+esc(p.obs):""}</small></div><div class="pg-side"><b>R$ ${fmt(p.valor)}</b><span class="badge ${p.pago?"pago":diasPend(p)>=5?"atraso":"pend"}">${p.pago?("Pago"+(p.pagoEm?" · "+new Date(p.pagoEm).toLocaleDateString("pt-BR"):"")):pendTxt(p)}</span></div>${p.pago?"":`<button class="chk" title="Cobrar pelo WhatsApp" onclick="event.stopPropagation();cobrar('${esc(p.id)}')">📲</button>`}</div>`).join(""):`<div class="vazio">${pags.length?"Nenhum pagamento encontrado.":"Nenhum pagamento gerado ainda.<br>Toque em “Gerar pagamento” para começar."}</div>`;
  const soma=b=>pags.filter(p=>p.pago===b).reduce((s,p)=>s+Number(p.valor),0);
  $("stPend").textContent="R$ "+fmt(soma(false));$("stPago").textContent="R$ "+fmt(soma(true))}
 $("tabs").onclick=e=>{const b=e.target.closest("button");if(!b)return;filtro=b.dataset.f;document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));renderPags()};
@@ -145,13 +145,15 @@ function abrir(id){
  const p=get(id);if(!p)return;atual=id;
  $("dAluno").textContent=p.aluno;$("dValor").textContent="R$ "+fmt(p.valor);$("dData").textContent=dt(p.criado);$("dRec").textContent=p.recebedor;$("dAlunos").innerHTML=(p.alunos&&p.alunos.length?p.alunos:[{nome:p.aluno,valor:p.valor}]).map(a=>esc(a.nome)+" — R$ "+fmt(a.valor)).join("<br>");$("dObs").textContent=p.obs||"—";$("dCat").textContent=catTxt(p)||"—";
  $("dCont").textContent=p.contato?"+"+normPhone(p.contato):"Não informado";$("pixCode").textContent=p.code;
+ $("pagoData").value=p.pagoEm?String(p.pagoEm).slice(0,10):"";
  $("qrcode").innerHTML="";new QRCode($("qrcode"),{text:p.code,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});
  statusDet();if(!$("dDet").open)$("dDet").showModal()}
 function statusDet(){
  const p=get(atual);if(!p)return;
  $("dStatus").innerHTML=p.pago?`<span class="badge pago">Pago em ${dt(p.pagoEm)}</span>`:`<span class="badge pend">Pendente</span>`;
  const b=$("bPago");b.className=p.pago?"secondary":"ok";b.textContent=p.pago?"↩ Desmarcar como pago":"✓ Marcar como pago";$("bCobrar").classList.toggle("hidden",p.pago)}
-function alternarPago(id){const p=get(id);if(!p)return;p.pago=!p.pago;p.pagoEm=p.pago?new Date().toISOString():null;save();renderPags();if($("dDet").open&&atual===id)statusDet()}
+function salvarDataPago(){const p=get(atual);if(!p)return;const data=$("pagoData").value;if(!data){alert("Escolha a data em que o pagamento foi realizado.");return;}p.pago=true;p.pagoEm=data+"T12:00:00";save();renderPags();statusDet();alert("Data do pagamento salva!")}
+function alternarPago(id){const p=get(id);if(!p)return;p.pago=!p.pago;p.pagoEm=p.pago?new Date().toISOString():null;$("pagoData").value=p.pago?String(p.pagoEm).slice(0,10):"";save();renderPags();if($("dDet").open&&atual===id)statusDet()}
 function excluirPag(){if(!confirm("Excluir este pagamento?"))return;pags=pags.filter(p=>p.id!==atual);save();$("dDet").close();renderPags()}
 async function copiarPix(){const p=get(atual);if(!p)return;try{await navigator.clipboard.writeText(texto(p));alert("Mensagem copiada!")}catch(e){alert("Não foi possível copiar automaticamente.")}}
 async function copiarCodigo(){const p=get(atual);if(!p)return;try{await navigator.clipboard.writeText(p.code);alert("Código Pix copiado!")}catch(e){alert("Não foi possível copiar automaticamente.")}}
@@ -256,7 +258,7 @@ function renderRel(){
 function exportarCsv(){
  const L=periodo().sort((a,b)=>a.criado.localeCompare(b.criado));if(!L.length)return alert("Não há dados neste período.");
  const q=v=>{let t=String(v==null?"":v);if(/^[=+\-@\t\r]/.test(t))t="'"+t;return'"'+t.replace(/"/g,'""')+'"'};
- const linhas=[["Data","Alunos","Categoria","Dia de vencimento","Observação","Valor","Status","Data do pagamento","Recebedor","Contato"]].concat(L.map(p=>[dt(p.criado),p.aluno,p.categoria||"",p.diaVenc||"",p.obs||"",fmt(p.valor),p.pago?"Pago":"Pendente",p.pagoEm?dt(p.pagoEm):"",p.recebedor||"",p.contato?"+"+normPhone(p.contato):""]));
+ const linhas=[["Data","Alunos","Categoria","Dia de vencimento","Observação","Valor","Status","Data do pagamento","Recebedor","Contato"]].concat(L.map(p=>[dt(p.criado),p.aluno,p.categoria||"",p.diaVenc||"",p.obs||"",fmt(p.valor),p.pago?"Pago":"Pendente",p.pagoEm?new Date(p.pagoEm).toLocaleDateString("pt-BR"):"",p.recebedor||"",p.contato?"+"+normPhone(p.contato):""]));
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+linhas.map(r=>r.map(q).join(";")).join("\r\n")],{type:"text/csv;charset=utf-8"}));
  a.download="autopix-relatorio-"+$("relMes").value+".csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 
