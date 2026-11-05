@@ -1,0 +1,52 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>AutoPix</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="css/style.css"></head><body>
+<div id="lock"><div class="card" style="width:min(380px,92vw);text-align:center;margin:0"><div class="logo" style="font-size:26px;margin-bottom:6px">Auto<span>Pix</span></div><p style="color:var(--mut)">Digite a senha para entrar</p><input id="lockPin" type="password" placeholder="Senha" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter')destravar()"><div class="actions"><button class="primary big" onclick="destravar()">🔒 Entrar</button></div><div id="lockErr" class="hint" style="color:var(--bad);min-height:18px;margin-top:10px"></div></div></div>
+<header><div class="logo">Auto<span>Pix</span></div><nav><button id="navInicio" class="active" onclick="showPage('inicio')">Pagamentos</button><button id="navRelatorio" onclick="showPage('relatorio')">Relatório</button><button id="navCadastro" onclick="showPage('cadastro')">Chaves Pix</button><button title="Bloquear" onclick="travar()">🔒</button></nav></header>
+<main>
+<section id="inicio" class="page active">
+ <button class="primary big" onclick="novo()">＋ Gerar pagamento</button>
+ <div class="stats"><div class="stat"><small>A RECEBER</small><b id="stPend" style="color:var(--warn)">R$ 0,00</b></div><div class="stat"><small>RECEBIDO</small><b id="stPago" style="color:var(--ok)">R$ 0,00</b></div></div>
+ <div class="tools"><input id="busca" placeholder="🔎 Buscar aluno..." oninput="renderPags()"><div class="tabs" id="tabs"><button data-f="todos" class="on">Todos</button><button data-f="pend">Pendentes</button><button data-f="pago">Pagos</button></div></div>
+ <div id="listaPags"></div>
+</section>
+<section id="relatorio" class="page">
+ <div class="card"><h1>Relatório</h1><div class="row"><div><label>Período (pela data de geração)</label><select id="relMes" onchange="renderRel()"></select></div><div style="display:flex;align-items:flex-end"><button class="secondary" style="width:100%" onclick="exportarCsv()">⬇️ Exportar para Excel (CSV)</button></div></div></div>
+ <div class="stats"><div class="stat"><small>GERADO</small><b id="rGer"></b><small id="rGerN"></small></div><div class="stat"><small>RECEBIDO</small><b id="rRec" style="color:var(--ok)"></b><small id="rTaxa"></small></div><div class="stat"><small>PENDENTE</small><b id="rPen" style="color:var(--warn)"></b><small id="rPenN"></small></div><div class="stat"><small>TICKET MÉDIO</small><b id="rTick"></b><small id="rTickN"></small></div></div>
+ <div class="card"><h2>Últimos 6 meses</h2><div id="gMeses"></div><div class="leg"><span><i class="dot" style="background:var(--ok)"></i>Recebido</span><span><i class="dot" style="background:var(--warn)"></i>Pendente</span></div></div>
+ <div class="card"><h2>Por categoria</h2><div id="gCat"></div></div>
+ <div class="card"><h2>Por chave Pix</h2><div id="gChave"></div></div>
+ <div class="card"><h2>Pendências mais antigas</h2><div id="gPend"></div></div>
+</section>
+<section id="cadastro" class="page">
+ <div class="card"><h1>Cadastro de chaves</h1><p style="color:var(--mut)">Cidade fixa: <strong>Itumbiara - GO</strong></p><input type="hidden" id="editId">
+ <label>Identificação</label><input id="identificacao" placeholder="Ex.: Loja, Empresa, João">
+ <div class="row"><div><label>Tipo de chave</label><select id="tipo"><option value="CPF">CPF</option><option value="CNPJ">CNPJ</option><option value="EMAIL">E-mail</option><option value="PHONE">Celular</option><option value="EVP">Chave aleatória</option></select></div><div><label>Nome que aparece no Pix</label><input id="nomePix" maxlength="25" placeholder="Nome do recebedor"><div class="hint">Máx. 25 caracteres. Acentos são removidos.</div></div></div>
+ <label>Chave Pix</label><input id="chave" placeholder="Digite a chave Pix">
+ <div class="actions"><button class="primary" onclick="salvarChave()">💾 Salvar chave</button><button class="secondary" onclick="limparFormulario()">Limpar</button></div></div>
+ <div class="card"><h2>Minhas chaves</h2><div id="listaChaves"></div>
+ <div class="actions"><button class="secondary" onclick="exportar()">⬇️ Exportar backup</button><button class="secondary" onclick="$('arquivo').click()">⬆️ Importar backup</button><input type="file" id="arquivo" accept=".json,application/json" class="hidden" onchange="importar(this)"></div>
+ <div class="hint">Os dados ficam só neste navegador. O backup inclui chaves e pagamentos. Exporte de vez em quando.</div></div>
+<div class="card"><h2>Link de pagamento</h2><p style="color:var(--mut);margin-top:0">Endereço público onde este arquivo está hospedado (https://...). É usado para montar os links que você envia ao pagador.</p><input id="cfgUrl" placeholder="https://seusite.com/index.html"><div class="actions"><button class="secondary" onclick="salvarUrl()">Salvar endereço</button></div></div>
+</section></main>
+<main id="pagador" class="hidden"><div class="card" style="text-align:center"><h2 style="color:var(--mut);font-size:15px">PAGAMENTO PIX</h2><h1 id="pgEmp" style="margin-bottom:4px"></h1><div id="pgVal" style="font-size:30px;font-weight:800;color:var(--ok)"></div><p id="pgAluno" style="color:var(--mut)"></p><div id="qrcodeP" style="display:flex;justify-content:center;margin:14px 0"></div><label style="text-align:left">Pix Copia e Cola</label><div id="pgCode" class="pix-code" style="text-align:left"></div><div class="actions" style="justify-content:center"><button class="primary big" onclick="copiarPagador()">📋 Copiar código Pix</button></div><div class="hint" style="margin-top:14px"><b>Enviar comprovante após pagamento</b></div></div></main>
+
+<datalist id="dlAlunos"></datalist>
+<dialog id="dNovo"><div class="dh"><h2>Gerar pagamento</h2><button class="x" onclick="$('dNovo').close()">×</button></div>
+ <label>Alunos</label><div id="nAlunos"></div>
+ <button class="secondary" type="button" onclick="addAluno()">＋ Adicionar aluno</button>
+ <div class="info"><span>Total do Pix</span><b id="nTotal">R$ 0,00</b></div>
+ <div class="row"><div><label>Categoria</label><select id="nCat" onchange="catChange()"><option value="Mensalidade">Mensalidade</option><option value="Outros">Outros</option></select></div><div id="nDiaBox"><label>Dia do vencimento</label><select id="nDia"><option value="5">Dia 5</option><option value="10">Dia 10</option><option value="15">Dia 15</option><option value="20">Dia 20</option><option value="25">Dia 25</option><option value="30">Dia 30</option></select></div></div>
+ <label>Observação (opcional)</label><input id="nObs" maxlength="200" placeholder="Ex.: Mensalidade de outubro">
+ <div class="row"><div><label>Contato (WhatsApp)</label><input id="nContato" inputmode="tel" placeholder="(64) 99999-9999"></div><div><label>Qual Pix usar</label><select id="nChave"></select></div></div>
+ <div class="actions"><button class="primary" style="flex:1" onclick="criar()">Gerar Pix</button><button class="secondary" onclick="$('dNovo').close()">Cancelar</button></div></dialog>
+
+<dialog id="dDet"><div class="dh"><h2 id="dAluno"></h2><button class="x" onclick="$('dDet').close()">×</button></div>
+ <div class="info"><span>Valor</span><b id="dValor"></b><span>Gerado em</span><div id="dData"></div><span>Alunos</span><div id="dAlunos"></div><span>Recebedor</span><div id="dRec"></div><span>Categoria</span><div id="dCat"></div><span>Obs.</span><div id="dObs"></div><span>Contato</span><div id="dCont"></div><span>Status</span><div id="dStatus"></div><span>Data do pagamento</span><div><input id="pagoData" type="date" aria-label="Data do pagamento"><button class="secondary" type="button" onclick="salvarDataPago()" style="margin-top:6px;width:100%">Salvar data do pagamento</button></div></div>
+ <div id="qrcode"></div>
+ <label>Pix Copia e Cola</label><div id="pixCode" class="pix-code"></div>
+ <div class="actions"><button class="secondary" onclick="copiarPix()">📋 Copiar mensagem</button><button class="secondary" onclick="copiarCodigo()">📋 Só o código</button><button class="primary" onclick="enviarWpp()">📲 WhatsApp</button><button class="secondary" onclick="compartilhar()">🖼️ Enviar com QR</button></div>
+ <div class="actions"><button class="secondary" onclick="copiarLink()">🔗 Copiar link</button><button class="primary" onclick="enviarLink()">🔗 Enviar link no WhatsApp</button></div>
+ <div class="actions"><button id="bCobrar" class="secondary" onclick="cobrar(atual)">📲 Cobrar</button><button id="bPago" onclick="alternarPago(atual)" style="flex:1"></button><button class="danger" onclick="excluirPag()">🗑️</button></div></dialog>
+
+<script src="js/app.js" defer></script></body></html>
